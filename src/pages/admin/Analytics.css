@@ -1,0 +1,207 @@
+/* Analytics Page Styles */
+.analytics-page {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.analytics-section {
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.analytics-section h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+}
+
+/* Highlighted Stats */
+.stat-card.highlight {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--primary) 0%, #6366f1 100%);
+  color: white;
+  border: none;
+}
+
+.stat-icon {
+  font-size: 3rem;
+  opacity: 0.9;
+}
+
+.stat-content h3 {
+  font-size: 0.875rem;
+  font-weight: 500;
+  opacity: 0.9;
+  margin-bottom: 0.5rem;
+}
+
+.stat-content .stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.stat-content .stat-label {
+  font-size: 0.875rem;
+  opacity: 0.8;
+}
+
+/* Distribution */
+.distribution-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.distribution-item {
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.distribution-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.role-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  text-transform: capitalize;
+}
+
+.role-count {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.distribution-bar {
+  height: 8px;
+  background: var(--bg-card);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.distribution-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary) 0%, #6366f1 100%);
+  transition: width 0.3s ease;
+}
+
+.distribution-fill.category {
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+}
+
+.distribution-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+/* Insights */
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.insight-card {
+  padding: 1.5rem;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.insight-card h4 {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.insight-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0;
+}
+
+/* Dark Mode */
+[data-theme="dark"] .stat-card.highlight {
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4), 0 0 30px rgba(99, 102, 241, 0.2);
+}
+
+[data-theme="dark"] .distribution-item,
+[data-theme="dark"] .insight-card {
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(129, 140, 248, 0.2);
+}
+
+[data-theme="dark"] .distribution-bar {
+  background: rgba(15, 23, 42, 0.8);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .analytics-section {
+    padding: 1.5rem;
+  }
+
+  .stat-card.highlight {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .insights-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+}
+
+/* Feature list (for old placeholder) */
+.feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 2rem auto;
+  max-width: 400px;
+  text-align: left;
+}
+
+.feature-list li {
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  border-left: 3px solid var(--primary);
+}
+
+[data-theme="dark"] .feature-list li {
+  background: rgba(30, 41, 59, 0.6);
+  border-left-color: var(--primary);
+}
+
+.placeholder-content {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.placeholder-content h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.placeholder-content p {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}

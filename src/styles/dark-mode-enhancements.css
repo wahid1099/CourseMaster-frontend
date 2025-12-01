@@ -1,0 +1,119 @@
+/* Additional Dark Mode Enhancements */
+
+/* Enhanced Buttons in Dark Mode */
+[data-theme="dark"] .btn-primary {
+  background: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.6), 0 0 20px rgba(129, 140, 248, 0.3);
+}
+
+[data-theme="dark"] .btn-primary:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.7), 0 0 30px rgba(129, 140, 248, 0.5);
+  transform: translateY(-2px);
+}
+
+[data-theme="dark"] .btn-outline {
+  border-color: #818cf8;
+  color: #818cf8;
+}
+
+[data-theme="dark"] .btn-outline:hover {
+  background-color: #818cf8;
+  box-shadow: 0 0 20px rgba(129, 140, 248, 0.4);
+}
+
+/* Enhanced Form Inputs in Dark Mode */
+[data-theme="dark"] .form-input,
+[data-theme="dark"] .form-select,
+[data-theme="dark"] .form-textarea {
+  background-color: rgba(30, 41, 59, 0.6);
+  border-color: rgba(100, 116, 139, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+[data-theme="dark"] .form-input:focus,
+[data-theme="dark"] .form-select:focus,
+[data-theme="dark"] .form-textarea:focus {
+  border-color: #818cf8;
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2), 0 0 15px rgba(129, 140, 248, 0.2);
+  background-color: rgba(30, 41, 59, 0.8);
+}
+
+/* Enhanced Gradient Text in Dark Mode */
+[data-theme="dark"] .gradient-text {
+  background: linear-gradient(135deg, #818cf8 0%, #f0abfc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Enhanced Progress Bar in Dark Mode */
+[data-theme="dark"] .progress-bar {
+  background-color: rgba(51, 65, 85, 0.5);
+}
+
+[data-theme="dark"] .progress-fill {
+  background: linear-gradient(90deg, #818cf8 0%, #f0abfc 100%);
+  box-shadow: 0 0 10px rgba(129, 140, 248, 0.5);
+}
+
+/* Enhanced Badges in Dark Mode */
+[data-theme="dark"] .badge-primary {
+  background-color: #818cf8;
+  box-shadow: 0 0 10px rgba(129, 140, 248, 0.3);
+}
+
+/* Smooth Scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Selection Color */
+::selection {
+  background-color: var(--primary);
+  color: var(--text-inverse);
+}
+
+[data-theme="dark"] ::selection {
+  background-color: #818cf8;
+  color: #0f172a;
+}
+
+/* Scrollbar Styling for Dark Mode */
+[data-theme="dark"] ::-webkit-scrollbar {
+  width: 12px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 6px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Glow Animation for Interactive Elements */
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(129, 140, 248, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(129, 140, 248, 0.4);
+  }
+}
+
+[data-theme="dark"] .btn-primary:focus {
+  animation: glow 2s ease-in-out infinite;
+}
+
+/* Enhanced Loading Spinner in Dark Mode */
+[data-theme="dark"] .spinner {
+  border-color: rgba(100, 116, 139, 0.3);
+  border-top-color: #818cf8;
+  box-shadow: 0 0 15px rgba(129, 140, 248, 0.3);
+}

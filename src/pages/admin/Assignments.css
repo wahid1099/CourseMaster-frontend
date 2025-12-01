@@ -1,0 +1,40 @@
+/* Assignments Page Styles */
+.assignments-page {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.assignment-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.detail-group label {
+  display: block;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.detail-group p {
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.answer-box {
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+[data-theme="dark"] .answer-box {
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(129, 140, 248, 0.2);
+}

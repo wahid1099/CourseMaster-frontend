@@ -1,0 +1,125 @@
+/* Dark Mode Enhancements for Dashboard Pages */
+
+/* Dashboard Page Background in Dark Mode */
+[data-theme="dark"] .dashboard-page {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 1) 0%, rgba(30, 41, 59, 0.8) 100%);
+}
+
+/* Enrollment Card with Glassmorphism in Dark Mode */
+[data-theme="dark"] .enrollment-card {
+  background-color: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(129, 140, 248, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Enrollment Thumbnail with Glow in Dark Mode */
+[data-theme="dark"] .enrollment-thumbnail {
+  box-shadow: 0 0 20px rgba(129, 140, 248, 0.2);
+  border-radius: var(--radius-md);
+}
+
+/* Stat Cards with Enhanced Glow in Dark Mode */
+[data-theme="dark"] .stat-card {
+  position: relative;
+}
+
+[data-theme="dark"] .stat-card::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(135deg, rgba(129, 140, 248, 0.3), rgba(167, 139, 250, 0.3));
+  border-radius: var(--radius-lg);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+[data-theme="dark"] .card:hover .stat-card::before {
+  opacity: 1;
+}
+
+/* Popular Course Items in Dark Mode */
+[data-theme="dark"] .popular-course-item {
+  background-color: rgba(51, 65, 85, 0.5);
+  border: 1px solid rgba(129, 140, 248, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+[data-theme="dark"] .popular-course-item:hover {
+  background-color: rgba(51, 65, 85, 0.7);
+  border-color: rgba(129, 140, 248, 0.4);
+}
+
+/* Course Header with Gradient Overlay in Dark Mode */
+[data-theme="dark"] .course-header {
+  background: linear-gradient(135deg, rgba(129, 140, 248, 0.15) 0%, rgba(167, 139, 250, 0.15) 100%);
+  position: relative;
+}
+
+[data-theme="dark"] .course-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(129, 140, 248, 0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Course Price Box with Glassmorphism in Dark Mode */
+[data-theme="dark"] .course-price-box {
+  background-color: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(129, 140, 248, 0.3);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.7), 0 0 30px rgba(129, 140, 248, 0.2);
+}
+
+/* Module Items with Glassmorphism in Dark Mode */
+[data-theme="dark"] .module-item {
+  background-color: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(129, 140, 248, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Info Items in Dark Mode */
+[data-theme="dark"] .info-item {
+  border-bottom-color: rgba(129, 140, 248, 0.2);
+}
+
+/* Success Badge with Glow in Dark Mode */
+[data-theme="dark"] .badge-success {
+  background-color: #34d399;
+  box-shadow: 0 0 10px rgba(52, 211, 153, 0.4);
+}
+
+/* Warning Badge with Glow in Dark Mode */
+[data-theme="dark"] .badge-warning {
+  background-color: #fbbf24;
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
+}
+
+/* Text Success Color in Dark Mode */
+[data-theme="dark"] .text-success {
+  color: #34d399;
+}
+
+/* Recharts Tooltip Styling in Dark Mode */
+[data-theme="dark"] .recharts-tooltip-wrapper {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+[data-theme="dark"] .recharts-default-tooltip {
+  background-color: rgba(30, 41, 59, 0.95) !important;
+  border: 1px solid rgba(129, 140, 248, 0.3) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}

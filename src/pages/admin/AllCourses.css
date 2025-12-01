@@ -1,0 +1,49 @@
+/* All Courses Page Styles */
+.all-courses {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.course-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.course-thumbnail {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+}
+
+.badge-category {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.badge-warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+}
+
+/* Reuse styles from UserManagement.css */
+.no-data {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.no-data p {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  font-size: 1.125rem;
+}
+
+/* Dark Mode */
+[data-theme="dark"] .badge-category {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+[data-theme="dark"] .badge-warning {
+  background: rgba(245, 158, 11, 0.2);
+}
