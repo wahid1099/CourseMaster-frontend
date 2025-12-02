@@ -2,8 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import { fetchAssignments, fetchAssignmentStats, reviewAssignment, setCurrentAssignment } from '../../store/slices/assignmentSlice';
-import { FiFileText, FiClock, FiCheckCircle, FiSearch, FiEye } from 'react-icons/fi';
+import { FiFileText, FiClock, FiCheckCircle, FiSearch, FiEye, FiPlus } from 'react-icons/fi';
+import axios from 'axios';
 import './Assignments.css';
+
+const API_URL = '/api';
 
 const Assignments: React.FC = () => {
   const dispatch = useDispatch();
@@ -12,12 +15,60 @@ const Assignments: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [feedback, setFeedback] = useState('');
+  const [courses, setCourses] = useState<any[]>([]);
+  
+  // Create assignment form state
+  const [createForm, setCreateForm] = useState({
+    title: '',
+    description: '',
+    courseId: '',
+    batch: '',
+    moduleIndex: '',
+    dueDate: ''
+  });
 
   useEffect(() => {
     dispatch(fetchAssignments({ page: 1 }) as any);
     dispatch(fetchAssignmentStats() as any);
+    fetchCourses();
   }, [dispatch]);
+
+  const fetchCourses = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/courses`, { withCredentials: true });
+      setCourses(response.data.courses || []);
+    } catch (error) {
+      console.error('Failed to fetch courses:', error);
+    }
+  };
+
+  const handleCreateAssignment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await axios.post(`${API_URL}/admin/assignments`, {
+        ...createForm,
+        moduleIndex: createForm.moduleIndex ? parseInt(createForm.moduleIndex) : undefined
+      }, { withCredentials: true });
+      
+      alert('Assignment created successfully');
+      setShowCreateModal(false);
+      setCreateForm({
+        title: '',
+        description: '',
+        courseId: '',
+        batch: '',
+        moduleIndex: '',
+        dueDate: ''
+      });
+      dispatch(fetchAssignments({ page: 1 }) as any);
+      dispatch(fetchAssignmentStats() as any);
+    } catch (error: any) {
+      console.error('Failed to create assignment:', error);
+      alert(error.response?.data?.message || 'Failed to create assignment');
+    }
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,10 +94,18 @@ const Assignments: React.FC = () => {
     }
   };
 
+  const selectedCourse = courses.find(c => c._id === createForm.courseId);
+
   return (
     <div className="assignments-page">
       <div className="page-header">
-        <h1>Assignment Review</h1>
+        <div>
+          <h1>Assignment Management</h1>
+          <p>Create and review assignments</p>
+        </div>
+        <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
+          <FiPlus /> Create Assignment
+        </button>
       </div>
 
       {/* Stats Cards */}
@@ -197,6 +256,118 @@ const Assignments: React.FC = () => {
                 Submit Review
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Assignment Modal */}
+      {showCreateModal && (
+        <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
+          <div className="modal-content large" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Create New Assignment</h2>
+              <button className="modal-close" onClick={() => setShowCreateModal(false)}>
+                &times;
+              </button>
+            </div>
+            <form onSubmit={handleCreateAssignment}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label>Assignment Title *</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={createForm.title}
+                    onChange={(e) => setCreateForm({ ...createForm, title: e.target.value })}
+                    placeholder="Enter assignment title"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Description *</label>
+                  <textarea
+                    className="form-textarea"
+                    value={createForm.description}
+                    onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })}
+                    placeholder="Enter assignment description"
+                    rows={4}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Course *</label>
+                  <select
+                    className="form-select"
+                    value={createForm.courseId}
+                    onChange={(e) => setCreateForm({ ...createForm, courseId: e.target.value, batch: '', moduleIndex: '' })}
+                    required
+                  >
+                    <option value="">Select a course</option>
+                    {courses.map((course) => (
+                      <option key={course._id} value={course._id}>
+                        {course.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {selectedCourse && (
+                  <>
+                    <div className="form-group">
+                      <label>Batch (Optional)</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={createForm.batch}
+                        onChange={(e) => setCreateForm({ ...createForm, batch: e.target.value })}
+                        placeholder="e.g., Spring 2024"
+                      />
+                      <small className="form-hint">
+                        Leave empty for general assignment or enter batch name to assign to all students in that batch
+                      </small>
+                    </div>
+
+                    {selectedCourse.modules && selectedCourse.modules.length > 0 && (
+                      <div className="form-group">
+                        <label>Module (Optional)</label>
+                        <select
+                          className="form-select"
+                          value={createForm.moduleIndex}
+                          onChange={(e) => setCreateForm({ ...createForm, moduleIndex: e.target.value })}
+                        >
+                          <option value="">General Assignment</option>
+                          {selectedCourse.modules.map((module: any, index: number) => (
+                            <option key={index} value={index}>
+                              Module {index + 1}: {module.title}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                <div className="form-group">
+                  <label>Due Date (Optional)</label>
+                  <input
+                    type="date"
+                    className="form-input"
+                    value={createForm.dueDate}
+                    onChange={(e) => setCreateForm({ ...createForm, dueDate: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setShowCreateModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Create Assignment
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

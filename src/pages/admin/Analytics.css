@@ -150,7 +150,38 @@
   background: rgba(15, 23, 42, 0.8);
 }
 
+/* Charts */
+.charts-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.chart-card {
+  padding: 2rem;
+}
+
+.chart-card h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+}
+
+/* Dark mode for charts */
+[data-theme="dark"] .chart-card {
+  background: rgba(15, 23, 42, 0.95);
+  border-color: rgba(129, 140, 248, 0.2);
+}
+
 /* Responsive */
+@media (max-width: 1200px) {
+  .charts-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 768px) {
   .analytics-section {
     padding: 1.5rem;

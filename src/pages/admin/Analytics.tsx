@@ -1,10 +1,29 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import { fetchCourses } from '../../store/slices/courseSlice';
 import { fetchUserStats } from '../../store/slices/userManagementSlice';
 import { FiUsers, FiBook, FiDollarSign, FiTrendingUp } from 'react-icons/fi';
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts';
 import './Analytics.css';
+
+const COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#3b82f6'];
 
 const Analytics: React.FC = () => {
   const dispatch = useDispatch();
@@ -25,10 +44,34 @@ const Analytics: React.FC = () => {
     return acc;
   }, {});
 
+  // Prepare chart data
+  const categoryChartData = Object.entries(categoryDistribution).map(([name, value]) => ({
+    name,
+    value: value as number,
+    courses: value as number
+  }));
+
+  const userRoleData = stats?.byRole.map(role => ({
+    name: role._id,
+    users: role.count,
+    active: role.active
+  })) || [];
+
+  // Mock data for user growth (replace with real data from backend)
+  const userGrowthData = [
+    { month: 'Jan', users: 20, revenue: 1200 },
+    { month: 'Feb', users: 35, revenue: 2100 },
+    { month: 'Mar', users: 50, revenue: 3500 },
+    { month: 'Apr', users: 75, revenue: 5200 },
+    { month: 'May', users: 95, revenue: 6800 },
+    { month: 'Jun', users: stats?.total || 120, revenue: totalRevenue }
+  ];
+
   return (
     <div className="analytics-page">
       <div className="page-header">
         <h1>Analytics Dashboard</h1>
+        <p>Comprehensive insights and statistics</p>
       </div>
 
       {/* Overview Stats */}
@@ -78,50 +121,126 @@ const Analytics: React.FC = () => {
         </div>
       </div>
 
-      {/* User Distribution */}
-      <div className="card analytics-section">
-        <h2>User Distribution by Role</h2>
-        <div className="distribution-grid">
-          {stats?.byRole.map((role) => (
-            <div key={role._id} className="distribution-item">
-              <div className="distribution-header">
-                <span className="role-name">{role._id}</span>
-                <span className="role-count">{role.count}</span>
-              </div>
-              <div className="distribution-bar">
-                <div 
-                  className="distribution-fill"
-                  style={{ width: `${(role.count / (stats.total || 1)) * 100}%` }}
-                />
-              </div>
-              <span className="distribution-label">{role.active} active</span>
-            </div>
-          ))}
+      {/* Charts Row 1 */}
+      <div className="charts-row">
+        {/* User Growth Chart */}
+        <div className="card chart-card">
+          <h2>User Growth & Revenue</h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <AreaChart data={userGrowthData}>
+              <defs>
+                <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#6366f1" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                </linearGradient>
+                <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis dataKey="month" stroke="#6b7280" />
+              <YAxis stroke="#6b7280" />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: '#fff', 
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px'
+                }} 
+              />
+              <Legend />
+              <Area 
+                type="monotone" 
+                dataKey="users" 
+                stroke="#6366f1" 
+                fillOpacity={1} 
+                fill="url(#colorUsers)" 
+                name="Users"
+              />
+              <Area 
+                type="monotone" 
+                dataKey="revenue" 
+                stroke="#10b981" 
+                fillOpacity={1} 
+                fill="url(#colorRevenue)" 
+                name="Revenue ($)"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Course Categories Bar Chart */}
+        <div className="card chart-card">
+          <h2>Courses by Category</h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={categoryChartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis dataKey="name" stroke="#6b7280" />
+              <YAxis stroke="#6b7280" />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: '#fff', 
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px'
+                }} 
+              />
+              <Legend />
+              <Bar dataKey="courses" fill="#6366f1" radius={[8, 8, 0, 0]} name="Number of Courses" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
-      {/* Course Categories */}
-      <div className="card analytics-section">
-        <h2>Courses by Category</h2>
-        <div className="distribution-grid">
-          {Object.entries(categoryDistribution).map(([category, count]) => (
-            <div key={category} className="distribution-item">
-              <div className="distribution-header">
-                <span className="role-name">{category}</span>
-                <span className="role-count">{count as number}</span>
-              </div>
-              <div className="distribution-bar">
-                <div 
-                  className="distribution-fill category"
-                  style={{ width: `${((count as number) / courses.length) * 100}%` }}
-                />
-              </div>
-            </div>
-          ))}
+      {/* Charts Row 2 */}
+      <div className="charts-row">
+        {/* User Role Distribution Pie Chart */}
+        <div className="card chart-card">
+          <h2>User Distribution by Role</h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={userRoleData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                outerRadius={100}
+                fill="#8884d8"
+                dataKey="users"
+              >
+                {userRoleData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Active vs Total Users */}
+        <div className="card chart-card">
+          <h2>Active Users by Role</h2>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={userRoleData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis dataKey="name" stroke="#6b7280" />
+              <YAxis stroke="#6b7280" />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: '#fff', 
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px'
+                }} 
+              />
+              <Legend />
+              <Bar dataKey="users" fill="#6366f1" radius={[8, 8, 0, 0]} name="Total Users" />
+              <Bar dataKey="active" fill="#10b981" radius={[8, 8, 0, 0]} name="Active Users" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
-      {/* Recent Activity */}
+      {/* Quick Insights */}
       <div className="card analytics-section">
         <h2>Quick Insights</h2>
         <div className="insights-grid">

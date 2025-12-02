@@ -25,6 +25,7 @@ const AdminSidebar: React.FC = () => {
     { path: '/admin/users', icon: FiUsers, label: 'Manage Users' },
     { path: '/admin/enrollments', icon: FiUsers, label: 'Enrollments' },
     { path: '/admin/assignments', icon: FiFileText, label: 'Assignments' },
+    { path: '/admin/quizzes', icon: FiFileText, label: 'Quizzes' },
     { path: '/admin/analytics', icon: FiBarChart2, label: 'Analytics' },
   ];
 

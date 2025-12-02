@@ -10,6 +10,7 @@ import CourseDetailsPage from './pages/CourseDetailsPage';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import StudentDashboard from './pages/StudentDashboard';
+import CourseLearning from './pages/CourseLearning';
 import AdminDashboard from './pages/AdminDashboard';
 import UserManagement from './pages/admin/UserManagement';
 import AllCourses from './pages/admin/AllCourses';
@@ -17,6 +18,10 @@ import CourseForm from './pages/admin/CourseForm';
 import Analytics from './pages/admin/Analytics';
 import Enrollments from './pages/admin/Enrollments';
 import Assignments from './pages/admin/Assignments';
+import QuizManagement from './pages/admin/QuizManagement';
+import QuizForm from './pages/admin/QuizForm';
+import SupportDashboard from './pages/admin/SupportDashboard';
+import ChatWidget from './components/ChatWidget';
 import ProtectedRoute from './components/shared/ProtectedRoute';
 import './styles/index.css';
 import './styles/dark-mode-enhancements.css';
@@ -45,6 +50,15 @@ function App() {
                 element={
                   <ProtectedRoute role="student">
                     <StudentDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              
+              <Route
+                path="/course/:id/learn"
+                element={
+                  <ProtectedRoute role="student">
+                    <CourseLearning />
                   </ProtectedRoute>
                 }
               />
@@ -137,9 +151,54 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+
+              <Route
+                path="/admin/quizzes"
+                element={
+                  <ProtectedRoute role="admin">
+                    <AdminLayout>
+                      <QuizManagement />
+                    </AdminLayout>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/admin/quizzes/new"
+                element={
+                  <ProtectedRoute role="admin">
+                    <AdminLayout>
+                      <QuizForm />
+                    </AdminLayout>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/admin/quizzes/:id/edit"
+                element={
+                  <ProtectedRoute role="admin">
+                    <AdminLayout>
+                      <QuizForm />
+                    </AdminLayout>
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/admin/support"
+                element={
+                  <ProtectedRoute role="admin">
+                    <AdminLayout>
+                      <SupportDashboard />
+                    </AdminLayout>
+                  </ProtectedRoute>
+                }
+              />
               
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
+            <ChatWidget />
           </main>
           <Footer />
         </div>
