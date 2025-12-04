@@ -26,19 +26,6 @@ const ChatWidget: React.FC = () => {
 
   // Admin ID - In a real app, this might be dynamic or a support group
   // For now, we'll assume the first admin user is the support agent
-  // You might need to fetch this or hardcode a specific support ID
-  const [supportId, setSupportId] = useState<string>("");
-
-  useEffect(() => {
-    if (user && user._id) {
-      // Initialize socket connection
-      const newSocket = io("http://localhost:5000", {
-        withCredentials: true,
-      });
-
-      newSocket.on("connect", () => {
-        console.log("Connected to chat server");
-        setIsConnected(true);
         newSocket.emit("join_chat", user._id);
       });
 

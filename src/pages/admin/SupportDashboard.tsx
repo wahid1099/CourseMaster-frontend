@@ -38,7 +38,7 @@ const SupportDashboard: React.FC = () => {
   useEffect(() => {
     if (user) {
       // Initialize socket connection
-      const newSocket = io("http://localhost:5000", {
+      const newSocket = io("https://course-master-backend-chi.vercel.app", {
         withCredentials: true,
       });
 
