@@ -1,13 +1,13 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = "https://course-master-backend-chi.vercel.app/api";
 
 interface User {
   _id: string;
   name: string;
   email: string;
-  role: 'student' | 'admin' | 'moderator' | 'teacher' | 'instructor';
+  role: "student" | "admin" | "moderator" | "teacher" | "instructor";
   isActive: boolean;
   lastLogin?: string;
   createdBy?: {
@@ -62,142 +62,191 @@ const initialState: UserManagementState = {
   currentUser: null,
   stats: null,
   filters: {
-    role: '',
-    status: '',
-    search: ''
+    role: "",
+    status: "",
+    search: "",
   },
   pagination: {
     page: 1,
     limit: 10,
     total: 0,
-    pages: 0
+    pages: 0,
   },
   loading: false,
-  error: null
+  error: null,
 };
 
 // Async thunks
 export const fetchUsers = createAsyncThunk(
-  'userManagement/fetchUsers',
-  async (params: { page?: number; limit?: number; role?: string; status?: string; search?: string } = {}, { rejectWithValue }) => {
+  "userManagement/fetchUsers",
+  async (
+    params: {
+      page?: number;
+      limit?: number;
+      role?: string;
+      status?: string;
+      search?: string;
+    } = {},
+    { rejectWithValue }
+  ) => {
     try {
       const queryParams = new URLSearchParams();
-      if (params.page) queryParams.append('page', params.page.toString());
-      if (params.limit) queryParams.append('limit', params.limit.toString());
-      if (params.role) queryParams.append('role', params.role);
-      if (params.status) queryParams.append('status', params.status);
-      if (params.search) queryParams.append('search', params.search);
+      if (params.page) queryParams.append("page", params.page.toString());
+      if (params.limit) queryParams.append("limit", params.limit.toString());
+      if (params.role) queryParams.append("role", params.role);
+      if (params.status) queryParams.append("status", params.status);
+      if (params.search) queryParams.append("search", params.search);
 
-      const response = await axios.get(`${API_URL}/admin/users?${queryParams.toString()}`, {
-        withCredentials: true
-      });
+      const response = await axios.get(
+        `${API_URL}/admin/users?${queryParams.toString()}`,
+        {
+          withCredentials: true,
+        }
+      );
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch users');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch users"
+      );
     }
   }
 );
 
 export const fetchUserStats = createAsyncThunk(
-  'userManagement/fetchUserStats',
+  "userManagement/fetchUserStats",
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${API_URL}/admin/users/stats`, {
-        withCredentials: true
+        withCredentials: true,
       });
       return response.data.stats;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch user stats');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch user stats"
+      );
     }
   }
 );
 
 export const fetchUserById = createAsyncThunk(
-  'userManagement/fetchUserById',
+  "userManagement/fetchUserById",
   async (userId: string, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${API_URL}/admin/users/${userId}`, {
-        withCredentials: true
+        withCredentials: true,
       });
       return response.data.user;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch user');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch user"
+      );
     }
   }
 );
 
 export const createUser = createAsyncThunk(
-  'userManagement/createUser',
-  async (userData: Partial<User> & { password: string }, { rejectWithValue }) => {
+  "userManagement/createUser",
+  async (
+    userData: Partial<User> & { password: string },
+    { rejectWithValue }
+  ) => {
     try {
       const response = await axios.post(`${API_URL}/admin/users`, userData, {
-        withCredentials: true
+        withCredentials: true,
       });
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to create user');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to create user"
+      );
     }
   }
 );
 
 export const updateUser = createAsyncThunk(
-  'userManagement/updateUser',
-  async ({ userId, userData }: { userId: string; userData: Partial<User> }, { rejectWithValue }) => {
+  "userManagement/updateUser",
+  async (
+    { userId, userData }: { userId: string; userData: Partial<User> },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await axios.put(`${API_URL}/admin/users/${userId}`, userData, {
-        withCredentials: true
-      });
+      const response = await axios.put(
+        `${API_URL}/admin/users/${userId}`,
+        userData,
+        {
+          withCredentials: true,
+        }
+      );
       return response.data.user;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to update user');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update user"
+      );
     }
   }
 );
 
 export const deleteUser = createAsyncThunk(
-  'userManagement/deleteUser',
+  "userManagement/deleteUser",
   async (userId: string, { rejectWithValue }) => {
     try {
       await axios.delete(`${API_URL}/admin/users/${userId}`, {
-        withCredentials: true
+        withCredentials: true,
       });
       return userId;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to delete user');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to delete user"
+      );
     }
   }
 );
 
 export const toggleUserStatus = createAsyncThunk(
-  'userManagement/toggleUserStatus',
+  "userManagement/toggleUserStatus",
   async (userId: string, { rejectWithValue }) => {
     try {
-      const response = await axios.patch(`${API_URL}/admin/users/${userId}/status`, {}, {
-        withCredentials: true
-      });
+      const response = await axios.patch(
+        `${API_URL}/admin/users/${userId}/status`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
       return response.data.user;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to toggle user status');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to toggle user status"
+      );
     }
   }
 );
 
 export const changeUserRole = createAsyncThunk(
-  'userManagement/changeUserRole',
-  async ({ userId, role }: { userId: string; role: string }, { rejectWithValue }) => {
+  "userManagement/changeUserRole",
+  async (
+    { userId, role }: { userId: string; role: string },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await axios.patch(`${API_URL}/admin/users/${userId}/role`, { role }, {
-        withCredentials: true
-      });
+      const response = await axios.patch(
+        `${API_URL}/admin/users/${userId}/role`,
+        { role },
+        {
+          withCredentials: true,
+        }
+      );
       return response.data.user;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to change user role');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to change user role"
+      );
     }
   }
 );
 
 const userManagementSlice = createSlice({
-  name: 'userManagement',
+  name: "userManagement",
   initialState,
   reducers: {
     setFilters: (state, action: PayloadAction<Partial<UserFilters>>) => {
@@ -211,7 +260,7 @@ const userManagementSlice = createSlice({
     },
     clearError: (state) => {
       state.error = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     // Fetch users
@@ -279,7 +328,9 @@ const userManagementSlice = createSlice({
       })
       .addCase(updateUser.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.users.findIndex(u => u._id === action.payload._id);
+        const index = state.users.findIndex(
+          (u) => u._id === action.payload._id
+        );
         if (index !== -1) {
           state.users[index] = action.payload;
         }
@@ -296,7 +347,7 @@ const userManagementSlice = createSlice({
       })
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.users = state.users.filter(u => u._id !== action.payload);
+        state.users = state.users.filter((u) => u._id !== action.payload);
       })
       .addCase(deleteUser.rejected, (state, action) => {
         state.loading = false;
@@ -304,24 +355,23 @@ const userManagementSlice = createSlice({
       });
 
     // Toggle user status
-    builder
-      .addCase(toggleUserStatus.fulfilled, (state, action) => {
-        const index = state.users.findIndex(u => u._id === action.payload._id);
-        if (index !== -1) {
-          state.users[index] = action.payload;
-        }
-      });
+    builder.addCase(toggleUserStatus.fulfilled, (state, action) => {
+      const index = state.users.findIndex((u) => u._id === action.payload._id);
+      if (index !== -1) {
+        state.users[index] = action.payload;
+      }
+    });
 
     // Change user role
-    builder
-      .addCase(changeUserRole.fulfilled, (state, action) => {
-        const index = state.users.findIndex(u => u._id === action.payload._id);
-        if (index !== -1) {
-          state.users[index] = action.payload;
-        }
-      });
-  }
+    builder.addCase(changeUserRole.fulfilled, (state, action) => {
+      const index = state.users.findIndex((u) => u._id === action.payload._id);
+      if (index !== -1) {
+        state.users[index] = action.payload;
+      }
+    });
+  },
 });
 
-export const { setFilters, clearFilters, setCurrentUser, clearError } = userManagementSlice.actions;
+export const { setFilters, clearFilters, setCurrentUser, clearError } =
+  userManagementSlice.actions;
 export default userManagementSlice.reducer;

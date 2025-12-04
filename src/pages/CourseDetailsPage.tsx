@@ -1,20 +1,22 @@
-import React, { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { FiClock, FiUser, FiDollarSign, FiBookOpen } from 'react-icons/fi';
-import { fetchCourse } from '../store/slices/courseSlice';
-import { RootState } from '../store/store';
-import axios from 'axios';
-import './Dashboard-dark.css';
+import React, { useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { FiClock, FiUser, FiDollarSign, FiBookOpen } from "react-icons/fi";
+import { fetchCourse } from "../store/slices/courseSlice";
+import { RootState } from "../store/store";
+import axios from "axios";
+import "./Dashboard-dark.css";
 
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+const API_URL = "https://course-master-backend-chi.vercel.app/api";
 
 const CourseDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { currentCourse, isLoading } = useSelector((state: RootState) => state.courses);
-  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
+  const { currentCourse, isLoading } = useSelector(
+    (state: RootState) => state.courses
+  );
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     if (id) {
@@ -24,16 +26,20 @@ const CourseDetailsPage: React.FC = () => {
 
   const handleEnroll = async () => {
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
 
     try {
-      await axios.post(`${API_URL}/student/enroll/${id}`, {}, { withCredentials: true });
-      alert('Successfully enrolled! Check your dashboard.');
-      navigate('/student/dashboard');
+      await axios.post(
+        `${API_URL}/student/enroll/${id}`,
+        {},
+        { withCredentials: true }
+      );
+      alert("Successfully enrolled! Check your dashboard.");
+      navigate("/student/dashboard");
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Enrollment failed');
+      alert(error.response?.data?.message || "Enrollment failed");
     }
   };
 
@@ -46,7 +52,9 @@ const CourseDetailsPage: React.FC = () => {
     );
   }
 
-  const totalLessons = currentCourse.modules?.reduce((sum, mod) => sum + mod.lessons.length, 0) || 0;
+  const totalLessons =
+    currentCourse.modules?.reduce((sum, mod) => sum + mod.lessons.length, 0) ||
+    0;
 
   return (
     <div className="course-details-page">
@@ -54,9 +62,13 @@ const CourseDetailsPage: React.FC = () => {
         <div className="container">
           <div className="course-header-content">
             <div>
-              <span className="badge badge-primary">{currentCourse.category}</span>
+              <span className="badge badge-primary">
+                {currentCourse.category}
+              </span>
               <h1 className="mt-2">{currentCourse.title}</h1>
-              <p className="course-instructor"><FiUser /> By {currentCourse.instructor}</p>
+              <p className="course-instructor">
+                <FiUser /> By {currentCourse.instructor}
+              </p>
             </div>
             <div className="course-header-actions">
               <div className="course-price-box">
@@ -82,18 +94,23 @@ const CourseDetailsPage: React.FC = () => {
             <section className="card">
               <h2>Course Content</h2>
               <div className="course-stats mb-4">
-                <span><FiBookOpen /> {currentCourse.modules?.length || 0} Modules</span>
-                <span><FiClock /> {totalLessons} Lessons</span>
+                <span>
+                  <FiBookOpen /> {currentCourse.modules?.length || 0} Modules
+                </span>
+                <span>
+                  <FiClock /> {totalLessons} Lessons
+                </span>
               </div>
-              
+
               {currentCourse.modules?.map((module, idx) => (
                 <div key={idx} className="module-item">
                   <h4>{module.title}</h4>
                   <p>{module.description}</p>
                   <ul className="lesson-list">
-                    {module.lessons.map((lesson, lessonIdx) => (
+                    {module.lessons.map((lesson: any, lessonIdx: number) => (
                       <li key={lessonIdx}>
-                        <FiClock size={14} /> {lesson.title} ({lesson.duration} min)
+                        <FiClock size={14} /> {lesson.title} ({lesson.duration}{" "}
+                        min)
                       </li>
                     ))}
                   </ul>

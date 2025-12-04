@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../store/store';
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 import {
   fetchUsers,
   fetchUserStats,
@@ -8,12 +8,19 @@ import {
   updateUser,
   deleteUser,
   toggleUserStatus,
-  changeUserRole,
   setFilters,
-  clearFilters
-} from '../../store/slices/userManagementSlice';
-import { FiPlus, FiEdit2, FiTrash2, FiToggleLeft, FiToggleRight, FiSearch, FiFilter } from 'react-icons/fi';
-import './UserManagement.css';
+  clearFilters,
+} from "../../store/slices/userManagementSlice";
+import {
+  FiPlus,
+  FiEdit2,
+  FiTrash2,
+  FiToggleLeft,
+  FiToggleRight,
+  FiSearch,
+  FiFilter,
+} from "react-icons/fi";
+import "./UserManagement.css";
 
 const UserManagement: React.FC = () => {
   const dispatch = useDispatch();
@@ -22,9 +29,9 @@ const UserManagement: React.FC = () => {
   );
 
   const [showModal, setShowModal] = useState(false);
-  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
+  const [modalMode, setModalMode] = useState<"create" | "edit">("create");
   const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     dispatch(fetchUsers({ page: 1 }) as any);
@@ -43,7 +50,7 @@ const UserManagement: React.FC = () => {
   };
 
   const handleClearFilters = () => {
-    setSearchTerm('');
+    setSearchTerm("");
     dispatch(clearFilters());
     dispatch(fetchUsers({ page: 1 }) as any);
   };
@@ -53,19 +60,19 @@ const UserManagement: React.FC = () => {
   };
 
   const handleCreateUser = () => {
-    setModalMode('create');
+    setModalMode("create");
     setSelectedUser(null);
     setShowModal(true);
   };
 
   const handleEditUser = (user: any) => {
-    setModalMode('edit');
+    setModalMode("edit");
     setSelectedUser(user);
     setShowModal(true);
   };
 
   const handleDeleteUser = async (userId: string) => {
-    if (window.confirm('Are you sure you want to deactivate this user?')) {
+    if (window.confirm("Are you sure you want to deactivate this user?")) {
       await dispatch(deleteUser(userId) as any);
       dispatch(fetchUsers({ ...filters, page: pagination.page }) as any);
       dispatch(fetchUserStats() as any);
@@ -77,22 +84,15 @@ const UserManagement: React.FC = () => {
     dispatch(fetchUserStats() as any);
   };
 
-  const handleChangeRole = async (userId: string, newRole: string) => {
-    if (window.confirm(`Change user role to ${newRole}?`)) {
-      await dispatch(changeUserRole({ userId, role: newRole }) as any);
-      dispatch(fetchUserStats() as any);
-    }
-  };
-
   const getRoleBadgeClass = (role: string) => {
     const classes: Record<string, string> = {
-      admin: 'badge-admin',
-      moderator: 'badge-moderator',
-      teacher: 'badge-teacher',
-      instructor: 'badge-instructor',
-      student: 'badge-student'
+      admin: "badge-admin",
+      moderator: "badge-moderator",
+      teacher: "badge-teacher",
+      instructor: "badge-instructor",
+      student: "badge-student",
     };
-    return classes[role] || 'badge-default';
+    return classes[role] || "badge-default";
   };
 
   return (
@@ -139,7 +139,9 @@ const UserManagement: React.FC = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <button type="submit" className="btn btn-primary btn-sm">Search</button>
+          <button type="submit" className="btn btn-primary btn-sm">
+            Search
+          </button>
         </form>
 
         <div className="filters">
@@ -147,7 +149,7 @@ const UserManagement: React.FC = () => {
             <FiFilter />
             <select
               value={filters.role}
-              onChange={(e) => handleFilterChange('role', e.target.value)}
+              onChange={(e) => handleFilterChange("role", e.target.value)}
             >
               <option value="">All Roles</option>
               <option value="student">Student</option>
@@ -161,7 +163,7 @@ const UserManagement: React.FC = () => {
           <div className="filter-group">
             <select
               value={filters.status}
-              onChange={(e) => handleFilterChange('status', e.target.value)}
+              onChange={(e) => handleFilterChange("status", e.target.value)}
             >
               <option value="">All Status</option>
               <option value="active">Active</option>
@@ -170,7 +172,10 @@ const UserManagement: React.FC = () => {
           </div>
 
           {(filters.role || filters.status || filters.search) && (
-            <button onClick={handleClearFilters} className="btn btn-secondary btn-sm">
+            <button
+              onClick={handleClearFilters}
+              className="btn btn-secondary btn-sm"
+            >
               Clear Filters
             </button>
           )}
@@ -178,11 +183,7 @@ const UserManagement: React.FC = () => {
       </div>
 
       {/* Error Message */}
-      {error && (
-        <div className="alert alert-error">
-          {error}
-        </div>
-      )}
+      {error && <div className="alert alert-error">{error}</div>}
 
       {/* Users Table */}
       <div className="card">
@@ -213,7 +214,13 @@ const UserManagement: React.FC = () => {
                   <tr key={user._id}>
                     <td>
                       <div className="user-info">
-                        {user.avatar && <img src={user.avatar} alt={user.name} className="user-avatar" />}
+                        {user.avatar && (
+                          <img
+                            src={user.avatar}
+                            alt={user.name}
+                            className="user-avatar"
+                          />
+                        )}
                         <span>{user.name}</span>
                       </div>
                     </td>
@@ -224,14 +231,18 @@ const UserManagement: React.FC = () => {
                       </span>
                     </td>
                     <td>
-                      <span className={`badge ${user.isActive ? 'badge-success' : 'badge-danger'}`}>
-                        {user.isActive ? 'Active' : 'Inactive'}
+                      <span
+                        className={`badge ${
+                          user.isActive ? "badge-success" : "badge-danger"
+                        }`}
+                      >
+                        {user.isActive ? "Active" : "Inactive"}
                       </span>
                     </td>
                     <td>
                       {user.lastLogin
                         ? new Date(user.lastLogin).toLocaleDateString()
-                        : 'Never'}
+                        : "Never"}
                     </td>
                     <td>
                       <div className="action-buttons">
@@ -245,7 +256,7 @@ const UserManagement: React.FC = () => {
                         <button
                           className="btn-icon"
                           onClick={() => handleToggleStatus(user._id)}
-                          title={user.isActive ? 'Deactivate' : 'Activate'}
+                          title={user.isActive ? "Deactivate" : "Activate"}
                         >
                           {user.isActive ? <FiToggleRight /> : <FiToggleLeft />}
                         </button>
@@ -268,15 +279,19 @@ const UserManagement: React.FC = () => {
         {/* Pagination */}
         {pagination.pages > 1 && (
           <div className="pagination">
-            {Array.from({ length: pagination.pages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => handlePageChange(page)}
-                className={`pagination-btn ${pagination.page === page ? 'active' : ''}`}
-              >
-                {page}
-              </button>
-            ))}
+            {Array.from({ length: pagination.pages }, (_, i) => i + 1).map(
+              (page) => (
+                <button
+                  key={page}
+                  onClick={() => handlePageChange(page)}
+                  className={`pagination-btn ${
+                    pagination.page === page ? "active" : ""
+                  }`}
+                >
+                  {page}
+                </button>
+              )
+            )}
           </div>
         )}
       </div>
@@ -300,19 +315,19 @@ const UserManagement: React.FC = () => {
 
 // Simple User Modal Component
 const UserModal: React.FC<{
-  mode: 'create' | 'edit';
+  mode: "create" | "edit";
   user: any;
   onClose: () => void;
   onSuccess: () => void;
 }> = ({ mode, user, onClose, onSuccess }) => {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    password: '',
-    role: user?.role || 'student',
-    bio: user?.bio || '',
-    phone: user?.phone || ''
+    name: user?.name || "",
+    email: user?.email || "",
+    password: "",
+    role: user?.role || "student",
+    bio: user?.bio || "",
+    phone: user?.phone || "",
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -321,15 +336,17 @@ const UserModal: React.FC<{
     setSubmitting(true);
 
     try {
-      if (mode === 'create') {
+      if (mode === "create") {
         await dispatch(createUser(formData) as any);
       } else {
         const { password, ...updateData } = formData;
-        await dispatch(updateUser({ userId: user._id, userData: updateData }) as any);
+        await dispatch(
+          updateUser({ userId: user._id, userData: updateData }) as any
+        );
       }
       onSuccess();
     } catch (error) {
-      console.error('Failed to save user:', error);
+      console.error("Failed to save user:", error);
     } finally {
       setSubmitting(false);
     }
@@ -339,8 +356,10 @@ const UserModal: React.FC<{
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>{mode === 'create' ? 'Create User' : 'Edit User'}</h2>
-          <button className="modal-close" onClick={onClose}>&times;</button>
+          <h2>{mode === "create" ? "Create User" : "Edit User"}</h2>
+          <button className="modal-close" onClick={onClose}>
+            &times;
+          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="modal-body">
@@ -350,7 +369,9 @@ const UserModal: React.FC<{
               type="text"
               className="form-input"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               required
             />
           </div>
@@ -361,19 +382,23 @@ const UserModal: React.FC<{
               type="email"
               className="form-input"
               value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
               required
             />
           </div>
 
-          {mode === 'create' && (
+          {mode === "create" && (
             <div className="form-group">
               <label>Password *</label>
               <input
                 type="password"
                 className="form-input"
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
                 required
                 minLength={6}
               />
@@ -385,7 +410,9 @@ const UserModal: React.FC<{
             <select
               className="form-select"
               value={formData.role}
-              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, role: e.target.value })
+              }
               required
             >
               <option value="student">Student</option>
@@ -402,7 +429,9 @@ const UserModal: React.FC<{
               type="tel"
               className="form-input"
               value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, phone: e.target.value })
+              }
             />
           </div>
 
@@ -411,18 +440,32 @@ const UserModal: React.FC<{
             <textarea
               className="form-textarea"
               value={formData.bio}
-              onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, bio: e.target.value })
+              }
               rows={3}
               maxLength={500}
             />
           </div>
 
           <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={onClose}
+            >
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary" disabled={submitting}>
-              {submitting ? 'Saving...' : mode === 'create' ? 'Create User' : 'Update User'}
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={submitting}
+            >
+              {submitting
+                ? "Saving..."
+                : mode === "create"
+                ? "Create User"
+                : "Update User"}
             </button>
           </div>
         </form>

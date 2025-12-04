@@ -17,15 +17,6 @@ import "./StudentDashboard.css";
 
 const API_URL = "/api";
 
-interface UserProfile {
-  name: string;
-  email: string;
-  avatar?: string;
-  bio?: string;
-  phone?: string;
-  createdAt: string;
-}
-
 interface Enrollment {
   _id: string;
   course: {
@@ -50,6 +41,7 @@ interface Assignment {
   };
   title: string;
   description: string;
+  moduleIndex?: number;
   status: string;
   submission?: {
     answer: string;
