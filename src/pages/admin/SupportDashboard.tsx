@@ -32,18 +32,6 @@ const SupportDashboard: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<ChatUser | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (user) {
-      // Initialize socket connection
-      const newSocket = io("https://course-master-backend-chi.vercel.app", {
-        withCredentials: true,
-      });
-
-      newSocket.on("connect", () => {
-        console.log("Support agent connected");
         newSocket.emit("join_chat", user._id);
       });
 

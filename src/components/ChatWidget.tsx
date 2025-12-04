@@ -20,19 +20,6 @@ const ChatWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [socket, setSocket] = useState<Socket | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState("");
-  const [isConnected, setIsConnected] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  // Admin ID - In a real app, this might be dynamic or a support group
-  // For now, we'll assume the first admin user is the support agent
-        newSocket.emit("join_chat", user._id);
-      });
-
-      newSocket.on("receive_message", (message: Message) => {
-        setMessages((prev) => [...prev, message]);
-        if (!isOpen) {
-          // Could show a notification badge here
         }
       });
 
