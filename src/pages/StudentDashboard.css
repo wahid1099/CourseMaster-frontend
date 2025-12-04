@@ -57,8 +57,14 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Profile Section */
@@ -268,6 +274,54 @@
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid var(--border-color);
+}
+
+/* Quiz Results */
+.quiz-results {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+}
+
+.quiz-score {
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.quiz-score strong {
+  color: var(--primary);
+}
+
+.badge-danger {
+  background: #ef4444;
+  color: white;
+}
+
+.badge-primary {
+  background: var(--primary);
+  color: white;
+}
+
+/* Quizzes Section */
+.quizzes-section h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+}
+
+.quiz-info {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+}
+
+.quiz-info p {
+  margin: 0.5rem 0;
+  color: var(--text-primary);
 }
 
 /* Empty State */

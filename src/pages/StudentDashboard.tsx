@@ -1,11 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { RootState } from '../store/store';
-import { FiUser, FiBook, FiFileText, FiEdit2, FiMail, FiCalendar } from 'react-icons/fi';
-import axios from 'axios';
-import './StudentDashboard.css';
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { RootState } from "../store/store";
+import {
+  FiUser,
+  FiBook,
+  FiFileText,
+  FiEdit2,
+  FiMail,
+  FiCalendar,
+  FiAward,
+} from "react-icons/fi";
+import axios from "axios";
+import { toast } from "react-toastify";
+import "./StudentDashboard.css";
 
-const API_URL = '/api';
+const API_URL = "/api";
 
 interface UserProfile {
   name: string;
@@ -51,15 +61,39 @@ interface Assignment {
   };
 }
 
+interface QuizHistory {
+  _id: string;
+  quiz: {
+    _id: string;
+    title: string;
+    moduleIndex?: number;
+  };
+  course: {
+    _id: string;
+    title: string;
+  };
+  score: number;
+  totalPoints: number;
+  percentage: number;
+  passed: boolean;
+  submittedAt: string;
+}
+
 const StudentDashboard: React.FC = () => {
   const { user } = useSelector((state: RootState) => state.auth);
-  const [activeTab, setActiveTab] = useState<'profile' | 'courses' | 'assignments'>('courses');
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<
+    "profile" | "courses" | "assignments" | "quizzes"
+  >("courses");
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [quizHistory, setQuizHistory] = useState<QuizHistory[]>([]);
+  const [availableQuizzes, setAvailableQuizzes] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
-  const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
-  const [assignmentAnswer, setAssignmentAnswer] = useState('');
+  const [selectedAssignment, setSelectedAssignment] =
+    useState<Assignment | null>(null);
+  const [assignmentAnswer, setAssignmentAnswer] = useState("");
 
   useEffect(() => {
     fetchDashboardData();
@@ -68,17 +102,51 @@ const StudentDashboard: React.FC = () => {
   const fetchDashboardData = async () => {
     try {
       setIsLoading(true);
-      const [enrollmentsRes, assignmentsRes] = await Promise.all([
+      const [enrollmentsRes, assignmentsRes, quizzesRes] = await Promise.all([
         axios.get(`${API_URL}/student/dashboard`, { withCredentials: true }),
-        axios.get(`${API_URL}/student/assignments`, { withCredentials: true }).catch(() => ({ data: { assignments: [] } }))
+        axios
+          .get(`${API_URL}/student/assignments`, { withCredentials: true })
+          .catch(() => ({ data: { assignments: [] } })),
+        axios
+          .get(`${API_URL}/quizzes/history`, { withCredentials: true })
+          .catch(() => ({ data: { history: [] } })),
       ]);
-      
+
       setEnrollments(enrollmentsRes.data.enrollments || []);
       setAssignments(assignmentsRes.data.assignments || []);
+      setQuizHistory(quizzesRes.data.history || []);
+
+      // Fetch available quizzes for enrolled courses
+      await fetchAvailableQuizzes(enrollmentsRes.data.enrollments || []);
     } catch (error) {
-      console.error('Failed to fetch dashboard data:', error);
+      console.error("Failed to fetch dashboard data:", error);
+      toast.error("Failed to load dashboard data");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchAvailableQuizzes = async (enrollments: Enrollment[]) => {
+    try {
+      const courseIds = enrollments.map((e) => e.course._id);
+      const quizPromises = courseIds.map((courseId) =>
+        axios
+          .get(`${API_URL}/quizzes/course/${courseId}`, {
+            withCredentials: true,
+          })
+          .catch(() => ({ data: { quizzes: [] } }))
+      );
+
+      const quizResults = await Promise.all(quizPromises);
+      const allQuizzes = quizResults.flatMap((res) => res.data.quizzes || []);
+
+      // Filter out quizzes that have already been taken
+      const takenQuizIds = quizHistory.map((h) => h.quiz._id);
+      const available = allQuizzes.filter((q) => !takenQuizIds.includes(q._id));
+
+      setAvailableQuizzes(available);
+    } catch (error) {
+      console.error("Failed to fetch available quizzes:", error);
     }
   };
 
@@ -86,29 +154,34 @@ const StudentDashboard: React.FC = () => {
     if (!selectedAssignment || !assignmentAnswer.trim()) return;
 
     try {
-      await axios.post(`${API_URL}/student/assignments`, {
-        courseId: selectedAssignment.course._id,
-        title: selectedAssignment.title,
-        description: selectedAssignment.description,
-        answer: assignmentAnswer
-      }, { withCredentials: true });
+      await axios.post(
+        `${API_URL}/student/assignments`,
+        {
+          courseId: selectedAssignment.course._id,
+          title: selectedAssignment.title,
+          description: selectedAssignment.description,
+          answer: assignmentAnswer,
+        },
+        { withCredentials: true }
+      );
 
-      alert('Assignment submitted successfully!');
+      toast.success("Assignment submitted successfully!");
       setShowSubmitModal(false);
-      setAssignmentAnswer('');
+      setAssignmentAnswer("");
       fetchDashboardData();
     } catch (error) {
-      console.error('Failed to submit assignment:', error);
-      alert('Failed to submit assignment');
+      console.error("Failed to submit assignment:", error);
+      toast.error("Failed to submit assignment");
     }
   };
 
   const stats = {
     totalCourses: enrollments.length,
-    completedCourses: enrollments.filter(e => e.isCompleted).length,
-    inProgress: enrollments.filter(e => !e.isCompleted).length,
+    completedCourses: enrollments.filter((e) => e.isCompleted).length,
+    inProgress: enrollments.filter((e) => !e.isCompleted).length,
     totalAssignments: assignments.length,
-    pendingAssignments: assignments.filter(a => a.status !== 'reviewed').length
+    pendingAssignments: assignments.filter((a) => a.status !== "reviewed")
+      .length,
   };
 
   if (isLoading) {
@@ -128,38 +201,48 @@ const StudentDashboard: React.FC = () => {
         {/* Tabs */}
         <div className="dashboard-tabs">
           <button
-            className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
-            onClick={() => setActiveTab('profile')}
+            className={`tab-btn ${activeTab === "profile" ? "active" : ""}`}
+            onClick={() => setActiveTab("profile")}
           >
             <FiUser /> Profile
           </button>
           <button
-            className={`tab-btn ${activeTab === 'courses' ? 'active' : ''}`}
-            onClick={() => setActiveTab('courses')}
+            className={`tab-btn ${activeTab === "courses" ? "active" : ""}`}
+            onClick={() => setActiveTab("courses")}
           >
             <FiBook /> My Courses
           </button>
           <button
-            className={`tab-btn ${activeTab === 'assignments' ? 'active' : ''}`}
-            onClick={() => setActiveTab('assignments')}
+            className={`tab-btn ${activeTab === "assignments" ? "active" : ""}`}
+            onClick={() => setActiveTab("assignments")}
           >
             <FiFileText /> Assignments
+          </button>
+          <button
+            className={`tab-btn ${activeTab === "quizzes" ? "active" : ""}`}
+            onClick={() => setActiveTab("quizzes")}
+          >
+            <FiAward /> Quizzes
           </button>
         </div>
 
         {/* Profile Tab */}
-        {activeTab === 'profile' && (
+        {activeTab === "profile" && (
           <div className="tab-content">
             <div className="profile-section">
               <div className="card profile-card">
                 <div className="profile-header">
                   <div className="profile-avatar">
-                    {user?.name?.charAt(0).toUpperCase() || 'U'}
+                    {user?.name?.charAt(0).toUpperCase() || "U"}
                   </div>
                   <div className="profile-info">
-                    <h2>{user?.name || 'Student'}</h2>
-                    <p className="profile-email"><FiMail /> {user?.email}</p>
-                    <p className="profile-joined"><FiCalendar /> Joined {new Date().toLocaleDateString()}</p>
+                    <h2>{user?.name || "Student"}</h2>
+                    <p className="profile-email">
+                      <FiMail /> {user?.email}
+                    </p>
+                    <p className="profile-joined">
+                      <FiCalendar /> Joined {new Date().toLocaleDateString()}
+                    </p>
                   </div>
                   <button className="btn-icon edit-profile">
                     <FiEdit2 />
@@ -190,14 +273,16 @@ const StudentDashboard: React.FC = () => {
         )}
 
         {/* My Courses Tab */}
-        {activeTab === 'courses' && (
+        {activeTab === "courses" && (
           <div className="tab-content">
             {enrollments.length === 0 ? (
               <div className="empty-state card">
                 <FiBook size={48} />
                 <h3>No Courses Yet</h3>
                 <p>Start learning by enrolling in a course!</p>
-                <a href="/" className="btn btn-primary">Browse Courses</a>
+                <a href="/" className="btn btn-primary">
+                  Browse Courses
+                </a>
               </div>
             ) : (
               <div className="courses-grid">
@@ -209,14 +294,20 @@ const StudentDashboard: React.FC = () => {
                       className="course-thumbnail"
                     />
                     <div className="course-content">
-                      <span className="course-category">{enrollment.course.category}</span>
+                      <span className="course-category">
+                        {enrollment.course.category}
+                      </span>
                       <h3>{enrollment.course.title}</h3>
-                      <p className="course-instructor">By {enrollment.course.instructor}</p>
-                      
+                      <p className="course-instructor">
+                        By {enrollment.course.instructor}
+                      </p>
+
                       <div className="course-progress">
                         <div className="progress-header">
                           <span>Progress</span>
-                          <span className="progress-percentage">{enrollment.progress}%</span>
+                          <span className="progress-percentage">
+                            {enrollment.progress}%
+                          </span>
                         </div>
                         <div className="progress-bar">
                           <div
@@ -225,16 +316,19 @@ const StudentDashboard: React.FC = () => {
                           />
                         </div>
                         <p className="lessons-count">
-                          {enrollment.completedLessons} / {enrollment.totalLessons} lessons completed
+                          {enrollment.completedLessons} /{" "}
+                          {enrollment.totalLessons} lessons completed
                         </p>
                       </div>
 
                       {enrollment.isCompleted ? (
                         <span className="badge badge-success">Completed</span>
                       ) : (
-                        <button 
+                        <button
                           className="btn btn-primary btn-block"
-                          onClick={() => window.location.href = `/course/${enrollment.course._id}/learn`}
+                          onClick={() =>
+                            (window.location.href = `/course/${enrollment.course._id}/learn`)
+                          }
                         >
                           Continue Learning
                         </button>
@@ -248,7 +342,7 @@ const StudentDashboard: React.FC = () => {
         )}
 
         {/* Assignments Tab */}
-        {activeTab === 'assignments' && (
+        {activeTab === "assignments" && (
           <div className="tab-content">
             {assignments.length === 0 ? (
               <div className="empty-state card">
@@ -263,20 +357,40 @@ const StudentDashboard: React.FC = () => {
                     <div className="assignment-header">
                       <div>
                         <h3>{assignment.title}</h3>
-                        <p className="assignment-course">{assignment.course.title}</p>
+                        <p className="assignment-course">
+                          {assignment.course.title}
+                          {assignment.moduleIndex !== undefined && (
+                            <span className="module-badge">
+                              📚 Module {assignment.moduleIndex + 1}
+                            </span>
+                          )}
+                        </p>
                       </div>
-                      <span className={`badge ${assignment.status === 'reviewed' ? 'badge-success' : 'badge-warning'}`}>
+                      <span
+                        className={`badge ${
+                          assignment.status === "reviewed"
+                            ? "badge-success"
+                            : "badge-warning"
+                        }`}
+                      >
                         {assignment.status}
                       </span>
                     </div>
-                    <p className="assignment-description">{assignment.description}</p>
-                    
+                    <p className="assignment-description">
+                      {assignment.description}
+                    </p>
+
                     {assignment.submission ? (
                       <div className="assignment-submission">
                         <h4>Your Submission:</h4>
                         <p>{assignment.submission.answer}</p>
-                        <small>Submitted on {new Date(assignment.submission.submittedAt).toLocaleDateString()}</small>
-                        
+                        <small>
+                          Submitted on{" "}
+                          {new Date(
+                            assignment.submission.submittedAt
+                          ).toLocaleDateString()}
+                        </small>
+
                         {assignment.review && (
                           <div className="assignment-feedback">
                             <h4>Instructor Feedback:</h4>
@@ -302,32 +416,181 @@ const StudentDashboard: React.FC = () => {
           </div>
         )}
 
+        {/* Quizzes Tab */}
+        {activeTab === "quizzes" && (
+          <div className="tab-content">
+            {/* Available Quizzes Section */}
+            <div className="quizzes-section">
+              <h2>Available Quizzes</h2>
+              {availableQuizzes.length === 0 ? (
+                <div className="empty-state card">
+                  <FiAward size={48} />
+                  <h3>No Available Quizzes</h3>
+                  <p>
+                    There are no quizzes available for your courses at the
+                    moment.
+                  </p>
+                </div>
+              ) : (
+                <div className="assignments-list">
+                  {availableQuizzes.map((quiz) => (
+                    <div key={quiz._id} className="assignment-card card">
+                      <div className="assignment-header">
+                        <div>
+                          <h3>{quiz.title}</h3>
+                          {quiz.moduleIndex !== undefined && (
+                            <small>Module {quiz.moduleIndex + 1}</small>
+                          )}
+                        </div>
+                        <span className="badge badge-primary">Available</span>
+                      </div>
+                      <div className="quiz-info">
+                        <p>
+                          <strong>Passing Score:</strong> {quiz.passingScore}%
+                        </p>
+                        <p>
+                          <strong>Questions:</strong>{" "}
+                          {quiz.questions?.length || 0}
+                        </p>
+                      </div>
+                      <button
+                        className="btn btn-primary"
+                        onClick={() => navigate(`/quiz/${quiz._id}`)}
+                      >
+                        Take Quiz
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Quiz History Section */}
+            <div className="quizzes-section" style={{ marginTop: "2rem" }}>
+              <h2>Quiz History</h2>
+              {quizHistory.length === 0 ? (
+                <div className="empty-state card">
+                  <FiAward size={48} />
+                  <h3>No Quiz History</h3>
+                  <p>You haven't taken any quizzes yet.</p>
+                </div>
+              ) : (
+                <div className="assignments-list">
+                  {quizHistory.map((quiz) => (
+                    <div key={quiz._id} className="assignment-card card">
+                      <div className="assignment-header">
+                        <div>
+                          <h3>{quiz.quiz.title}</h3>
+                          <p className="assignment-course">
+                            {quiz.course.title}
+                          </p>
+                          {quiz.quiz.moduleIndex !== undefined && (
+                            <small>Module {quiz.quiz.moduleIndex + 1}</small>
+                          )}
+                        </div>
+                        <span
+                          className={`badge ${
+                            quiz.passed ? "badge-success" : "badge-danger"
+                          }`}
+                        >
+                          {quiz.passed ? "Passed" : "Failed"}
+                        </span>
+                      </div>
+                      <div className="quiz-results">
+                        <div className="quiz-score">
+                          <strong>Score:</strong> {quiz.score} /{" "}
+                          {quiz.totalPoints} ({quiz.percentage}%)
+                        </div>
+                        <small>
+                          Submitted on{" "}
+                          {new Date(quiz.submittedAt).toLocaleDateString()}
+                        </small>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Submit Assignment Modal */}
         {showSubmitModal && selectedAssignment && (
-          <div className="modal-overlay" onClick={() => setShowSubmitModal(false)}>
+          <div
+            className="modal-overlay"
+            onClick={() => setShowSubmitModal(false)}
+          >
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
                 <h2>Submit Assignment</h2>
-                <button className="modal-close" onClick={() => setShowSubmitModal(false)}>&times;</button>
+                <button
+                  className="modal-close"
+                  onClick={() => setShowSubmitModal(false)}
+                >
+                  &times;
+                </button>
               </div>
               <div className="modal-body">
                 <h3>{selectedAssignment.title}</h3>
-                <p className="text-secondary">{selectedAssignment.description}</p>
-                
+                <p className="text-secondary">
+                  {selectedAssignment.description}
+                </p>
+
                 <div className="form-group">
-                  <label>Your Answer *</label>
-                  <textarea
-                    className="form-textarea"
-                    value={assignmentAnswer}
-                    onChange={(e) => setAssignmentAnswer(e.target.value)}
-                    placeholder="Enter your answer here..."
-                    rows={8}
-                    required
-                  />
+                  <label>Submission Type</label>
+                  <select
+                    className="form-select"
+                    onChange={(e) => {
+                      if (e.target.value === "link") {
+                        setAssignmentAnswer("https://drive.google.com/");
+                      } else {
+                        setAssignmentAnswer("");
+                      }
+                    }}
+                  >
+                    <option value="text">Text Answer</option>
+                    <option value="link">Google Drive Link</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>
+                    {assignmentAnswer.startsWith("https://drive.google.com")
+                      ? "Google Drive Link *"
+                      : "Your Answer *"}
+                  </label>
+                  {assignmentAnswer.startsWith("https://drive.google.com") ? (
+                    <>
+                      <input
+                        type="url"
+                        className="form-input"
+                        value={assignmentAnswer}
+                        onChange={(e) => setAssignmentAnswer(e.target.value)}
+                        placeholder="https://drive.google.com/file/d/..."
+                        required
+                      />
+                      <small className="form-hint">
+                        📎 Make sure the file is shared with "Anyone with the
+                        link can view"
+                      </small>
+                    </>
+                  ) : (
+                    <textarea
+                      className="form-textarea"
+                      value={assignmentAnswer}
+                      onChange={(e) => setAssignmentAnswer(e.target.value)}
+                      placeholder="Enter your answer here..."
+                      rows={8}
+                      required
+                    />
+                  )}
                 </div>
               </div>
               <div className="modal-footer">
-                <button className="btn btn-secondary" onClick={() => setShowSubmitModal(false)}>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setShowSubmitModal(false)}
+                >
                   Cancel
                 </button>
                 <button
