@@ -15,7 +15,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import "./StudentDashboard.css";
 
-const API_URL = "/api";
+const API_URL = "https://course-master-backend-chi.vercel.app/api";
 
 interface Enrollment {
   _id: string;

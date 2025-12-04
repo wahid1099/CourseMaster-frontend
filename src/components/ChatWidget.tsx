@@ -54,9 +54,12 @@ const ChatWidget: React.FC = () => {
 
   const fetchSupportAgent = async () => {
     try {
-      const response = await axios.get("/api/chat/support-agents", {
-        withCredentials: true,
-      });
+      const response = await axios.get(
+        "https://course-master-backend-chi.vercel.app/api/chat/support-agents",
+        {
+          withCredentials: true,
+        }
+      );
       if (response.data.agents && response.data.agents.length > 0) {
         setSupportId(response.data.agents[0]._id);
       }
@@ -68,9 +71,12 @@ const ChatWidget: React.FC = () => {
   const fetchChatHistory = async () => {
     if (!supportId) return;
     try {
-      const response = await axios.get(`/api/chat/history/${supportId}`, {
-        withCredentials: true,
-      });
+      const response = await axios.get(
+        `https://course-master-backend-chi.vercel.app/api/chat/history/${supportId}`,
+        {
+          withCredentials: true,
+        }
+      );
       setMessages(response.data.chats);
     } catch (error) {
       console.error("Failed to fetch chat history", error);
@@ -87,7 +93,7 @@ const ChatWidget: React.FC = () => {
 
     try {
       const response = await axios.post(
-        "/api/chat/send",
+        "https://course-master-backend-chi.vercel.app/api/chat/send",
         {
           receiver: supportId,
           message: newMessage,

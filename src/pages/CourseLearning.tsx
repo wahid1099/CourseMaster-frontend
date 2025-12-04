@@ -1,12 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { FiArrowLeft, FiPlay, FiCheck, FiChevronDown, FiChevronUp, FiClock, FiBook } from 'react-icons/fi';
-import axios from 'axios';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import './CourseLearning.css';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  FiArrowLeft,
+  FiPlay,
+  FiCheck,
+  FiChevronDown,
+  FiChevronUp,
+  FiClock,
+  FiBook,
+} from "react-icons/fi";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "./CourseLearning.css";
 
-const API_URL = '/api';
+const API_URL = "https://course-master-backend-chi.vercel.app/api";
 
 interface Lesson {
   title: string;
@@ -47,8 +55,13 @@ const CourseLearning: React.FC = () => {
   const [enrollment, setEnrollment] = useState<Enrollment | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedModules, setExpandedModules] = useState<number[]>([]);
-  const [currentLesson, setCurrentLesson] = useState<{ moduleIndex: number; lessonIndex: number } | null>(null);
-  const [completedLessonsSet, setCompletedLessonsSet] = useState<Set<string>>(new Set());
+  const [currentLesson, setCurrentLesson] = useState<{
+    moduleIndex: number;
+    lessonIndex: number;
+  } | null>(null);
+  const [completedLessonsSet, setCompletedLessonsSet] = useState<Set<string>>(
+    new Set()
+  );
 
   useEffect(() => {
     fetchCourseData();
@@ -67,17 +80,20 @@ const CourseLearning: React.FC = () => {
   const fetchCourseData = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get(`${API_URL}/student/course/${id}/learn`, { 
-        withCredentials: true 
-      });
-      
+      const response = await axios.get(
+        `${API_URL}/student/course/${id}/learn`,
+        {
+          withCredentials: true,
+        }
+      );
+
       setCourse(response.data.course);
       setEnrollment(response.data.enrollment);
     } catch (error: any) {
-      console.error('Failed to fetch course data:', error);
+      console.error("Failed to fetch course data:", error);
       if (error.response?.status === 403) {
-        toast.error('You are not enrolled in this course');
-        setTimeout(() => navigate('/dashboard'), 2000);
+        toast.error("You are not enrolled in this course");
+        setTimeout(() => navigate("/dashboard"), 2000);
       }
     } finally {
       setIsLoading(false);
@@ -85,9 +101,9 @@ const CourseLearning: React.FC = () => {
   };
 
   const toggleModule = (moduleIndex: number) => {
-    setExpandedModules(prev => 
+    setExpandedModules((prev) =>
       prev.includes(moduleIndex)
-        ? prev.filter(i => i !== moduleIndex)
+        ? prev.filter((i) => i !== moduleIndex)
         : [...prev, moduleIndex]
     );
   };
@@ -101,15 +117,15 @@ const CourseLearning: React.FC = () => {
 
     try {
       const lessonKey = `${currentLesson.moduleIndex}-${currentLesson.lessonIndex}`;
-      
+
       // Optimistically update UI
-      setCompletedLessonsSet(prev => new Set(prev).add(lessonKey));
+      setCompletedLessonsSet((prev) => new Set(prev).add(lessonKey));
 
       await axios.put(
         `${API_URL}/student/enrollments/${enrollment._id}/lesson/complete`,
         {
           moduleIndex: currentLesson.moduleIndex,
-          lessonIndex: currentLesson.lessonIndex
+          lessonIndex: currentLesson.lessonIndex,
         },
         { withCredentials: true }
       );
@@ -117,50 +133,60 @@ const CourseLearning: React.FC = () => {
       // Refresh enrollment data to get updated progress
       await fetchCourseData();
     } catch (error) {
-      console.error('Failed to mark lesson as complete:', error);
-      toast.error('Failed to mark lesson as complete. Please try again.');
+      console.error("Failed to mark lesson as complete:", error);
+      toast.error("Failed to mark lesson as complete. Please try again.");
       // Revert optimistic update on error
-      setCompletedLessonsSet(prev => {
+      setCompletedLessonsSet((prev) => {
         const newSet = new Set(prev);
-        newSet.delete(`${currentLesson.moduleIndex}-${currentLesson.lessonIndex}`);
+        newSet.delete(
+          `${currentLesson.moduleIndex}-${currentLesson.lessonIndex}`
+        );
         return newSet;
       });
     }
   };
 
-  const isLessonCompleted = (moduleIndex: number, lessonIndex: number): boolean => {
+  const isLessonCompleted = (
+    moduleIndex: number,
+    lessonIndex: number
+  ): boolean => {
     return completedLessonsSet.has(`${moduleIndex}-${lessonIndex}`);
   };
 
   const getCurrentLesson = () => {
     if (!course || !currentLesson) return null;
-    return course.modules[currentLesson.moduleIndex]?.lessons[currentLesson.lessonIndex];
+    return course.modules[currentLesson.moduleIndex]?.lessons[
+      currentLesson.lessonIndex
+    ];
   };
 
   const getTotalDuration = () => {
     if (!course) return 0;
-    return course.modules.reduce((total, module) => 
-      total + module.lessons.reduce((sum, lesson) => sum + lesson.duration, 0), 0
+    return course.modules.reduce(
+      (total, module) =>
+        total +
+        module.lessons.reduce((sum, lesson) => sum + lesson.duration, 0),
+      0
     );
   };
 
   // Convert YouTube URL to embeddable format
   const convertToEmbedUrl = (url: string): string => {
-    if (!url) return '';
-    
+    if (!url) return "";
+
     // Already an embed URL
-    if (url.includes('/embed/')) {
+    if (url.includes("/embed/")) {
       return url;
     }
-    
+
     // Convert youtube.com/watch?v=VIDEO_ID to youtube.com/embed/VIDEO_ID
     const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/;
     const match = url.match(youtubeRegex);
-    
+
     if (match && match[1]) {
       return `https://www.youtube.com/embed/${match[1]}`;
     }
-    
+
     // Return original URL if not a YouTube URL
     return url;
   };
@@ -178,7 +204,10 @@ const CourseLearning: React.FC = () => {
     return (
       <div className="error-container">
         <p>Course not found</p>
-        <button className="btn btn-primary" onClick={() => navigate('/dashboard')}>
+        <button
+          className="btn btn-primary"
+          onClick={() => navigate("/dashboard")}
+        >
           Back to Dashboard
         </button>
       </div>
@@ -203,7 +232,7 @@ const CourseLearning: React.FC = () => {
       {/* Header */}
       <div className="learning-header">
         <div className="header-content">
-          <button className="btn-back" onClick={() => navigate('/dashboard')}>
+          <button className="btn-back" onClick={() => navigate("/dashboard")}>
             <FiArrowLeft /> Back to Dashboard
           </button>
           <div className="course-info">
@@ -227,10 +256,15 @@ const CourseLearning: React.FC = () => {
                   strokeDasharray={`${enrollment?.progress || 0}, 100`}
                 />
               </svg>
-              <span className="progress-text">{enrollment?.progress || 0}%</span>
+              <span className="progress-text">
+                {enrollment?.progress || 0}%
+              </span>
             </div>
             <div className="progress-details">
-              <p>{enrollment?.completedLessons || 0} / {enrollment?.totalLessons || 0} lessons</p>
+              <p>
+                {enrollment?.completedLessons || 0} /{" "}
+                {enrollment?.totalLessons || 0} lessons
+              </p>
             </div>
           </div>
         </div>
@@ -258,15 +292,30 @@ const CourseLearning: React.FC = () => {
                       <FiClock /> {currentLessonData.duration} minutes
                     </p>
                   </div>
-                  <button 
-                    className={`btn ${isLessonCompleted(currentLesson!.moduleIndex, currentLesson!.lessonIndex) ? 'btn-success' : 'btn-primary'}`}
+                  <button
+                    className={`btn ${
+                      isLessonCompleted(
+                        currentLesson!.moduleIndex,
+                        currentLesson!.lessonIndex
+                      )
+                        ? "btn-success"
+                        : "btn-primary"
+                    }`}
                     onClick={markLessonComplete}
-                    disabled={isLessonCompleted(currentLesson!.moduleIndex, currentLesson!.lessonIndex)}
+                    disabled={isLessonCompleted(
+                      currentLesson!.moduleIndex,
+                      currentLesson!.lessonIndex
+                    )}
                   >
-                    {isLessonCompleted(currentLesson!.moduleIndex, currentLesson!.lessonIndex) ? (
-                      <><FiCheck /> Completed</>
+                    {isLessonCompleted(
+                      currentLesson!.moduleIndex,
+                      currentLesson!.lessonIndex
+                    ) ? (
+                      <>
+                        <FiCheck /> Completed
+                      </>
                     ) : (
-                      'Mark as Complete'
+                      "Mark as Complete"
                     )}
                   </button>
                 </div>
@@ -283,16 +332,19 @@ const CourseLearning: React.FC = () => {
         {/* Modules Sidebar */}
         <div className="modules-sidebar">
           <div className="sidebar-header">
-            <h3><FiBook /> Course Content</h3>
+            <h3>
+              <FiBook /> Course Content
+            </h3>
             <p className="course-stats">
-              {course.modules.length} modules • {enrollment?.totalLessons || 0} lessons • {getTotalDuration()} min
+              {course.modules.length} modules • {enrollment?.totalLessons || 0}{" "}
+              lessons • {getTotalDuration()} min
             </p>
           </div>
 
           <div className="modules-list">
             {course.modules.map((module, moduleIndex) => (
               <div key={moduleIndex} className="module-item">
-                <div 
+                <div
                   className="module-header"
                   onClick={() => toggleModule(moduleIndex)}
                 >
@@ -301,7 +353,11 @@ const CourseLearning: React.FC = () => {
                     <p>{module.lessons.length} lessons</p>
                   </div>
                   <button className="toggle-btn">
-                    {expandedModules.includes(moduleIndex) ? <FiChevronUp /> : <FiChevronDown />}
+                    {expandedModules.includes(moduleIndex) ? (
+                      <FiChevronUp />
+                    ) : (
+                      <FiChevronDown />
+                    )}
                   </button>
                 </div>
 
@@ -311,11 +367,15 @@ const CourseLearning: React.FC = () => {
                       <div
                         key={lessonIndex}
                         className={`lesson-item ${
-                          currentLesson?.moduleIndex === moduleIndex && 
-                          currentLesson?.lessonIndex === lessonIndex 
-                            ? 'active' 
-                            : ''
-                        } ${isLessonCompleted(moduleIndex, lessonIndex) ? 'completed' : ''}`}
+                          currentLesson?.moduleIndex === moduleIndex &&
+                          currentLesson?.lessonIndex === lessonIndex
+                            ? "active"
+                            : ""
+                        } ${
+                          isLessonCompleted(moduleIndex, lessonIndex)
+                            ? "completed"
+                            : ""
+                        }`}
                         onClick={() => selectLesson(moduleIndex, lessonIndex)}
                       >
                         <div className="lesson-icon">

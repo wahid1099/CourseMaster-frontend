@@ -78,9 +78,12 @@ const SupportDashboard: React.FC = () => {
 
   const fetchActiveChats = async () => {
     try {
-      const response = await axios.get("/api/chat/recent", {
-        withCredentials: true,
-      });
+      const response = await axios.get(
+        "https://course-master-backend-chi.vercel.app/api/chat/recent",
+        {
+          withCredentials: true,
+        }
+      );
       setActiveChats(response.data.recentChats);
     } catch (error) {
       console.error("Failed to fetch active chats", error);
@@ -89,9 +92,12 @@ const SupportDashboard: React.FC = () => {
 
   const fetchChatHistory = async (userId: string) => {
     try {
-      const response = await axios.get(`/api/chat/history/${userId}`, {
-        withCredentials: true,
-      });
+      const response = await axios.get(
+        `https://course-master-backend-chi.vercel.app/api/chat/history/${userId}`,
+        {
+          withCredentials: true,
+        }
+      );
       setMessages(response.data.chats);
     } catch (error) {
       console.error("Failed to fetch chat history", error);
@@ -101,7 +107,7 @@ const SupportDashboard: React.FC = () => {
   const markAsRead = async (userId: string) => {
     try {
       await axios.put(
-        `/api/chat/read/${userId}`,
+        `https://course-master-backend-chi.vercel.app/api/chat/read/${userId}`,
         {},
         { withCredentials: true }
       );
@@ -125,7 +131,7 @@ const SupportDashboard: React.FC = () => {
 
     try {
       const response = await axios.post(
-        "/api/chat/send",
+        "https://course-master-backend-chi.vercel.app/api/chat/send",
         {
           receiver: selectedUser._id,
           message: newMessage,

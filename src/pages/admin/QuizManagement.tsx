@@ -1,10 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FiPlus, FiEdit2, FiTrash2, FiBook, FiFileText, FiFilter } from 'react-icons/fi';
-import axios from 'axios';
-import './QuizManagement.css';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  FiPlus,
+  FiEdit2,
+  FiTrash2,
+  FiBook,
+  FiFileText,
+  FiFilter,
+} from "react-icons/fi";
+import axios from "axios";
+import "./QuizManagement.css";
 
-const API_URL = '/api';
+const API_URL = "https://course-master-backend-chi.vercel.app/api";
 
 interface Quiz {
   _id: string;
@@ -23,7 +30,9 @@ const QuizManagement: React.FC = () => {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [filteredQuizzes, setFilteredQuizzes] = useState<Quiz[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filterType, setFilterType] = useState<'all' | 'module' | 'standalone'>('all');
+  const [filterType, setFilterType] = useState<"all" | "module" | "standalone">(
+    "all"
+  );
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [quizToDelete, setQuizToDelete] = useState<Quiz | null>(null);
 
@@ -39,23 +48,27 @@ const QuizManagement: React.FC = () => {
     try {
       setIsLoading(true);
       const response = await axios.get(`${API_URL}/admin/quizzes`, {
-        withCredentials: true
+        withCredentials: true,
       });
       setQuizzes(response.data.quizzes || []);
     } catch (error) {
-      console.error('Failed to fetch quizzes:', error);
+      console.error("Failed to fetch quizzes:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   const filterQuizzesByType = () => {
-    if (filterType === 'all') {
+    if (filterType === "all") {
       setFilteredQuizzes(quizzes);
-    } else if (filterType === 'module') {
-      setFilteredQuizzes(quizzes.filter(q => q.course && q.moduleIndex !== undefined));
+    } else if (filterType === "module") {
+      setFilteredQuizzes(
+        quizzes.filter((q) => q.course && q.moduleIndex !== undefined)
+      );
     } else {
-      setFilteredQuizzes(quizzes.filter(q => !q.course || q.moduleIndex === undefined));
+      setFilteredQuizzes(
+        quizzes.filter((q) => !q.course || q.moduleIndex === undefined)
+      );
     }
   };
 
@@ -64,15 +77,15 @@ const QuizManagement: React.FC = () => {
 
     try {
       await axios.delete(`${API_URL}/admin/quizzes/${quizToDelete._id}`, {
-        withCredentials: true
+        withCredentials: true,
       });
-      alert('Quiz deleted successfully');
+      alert("Quiz deleted successfully");
       setShowDeleteModal(false);
       setQuizToDelete(null);
       fetchQuizzes();
     } catch (error) {
-      console.error('Failed to delete quiz:', error);
-      alert('Failed to delete quiz');
+      console.error("Failed to delete quiz:", error);
+      alert("Failed to delete quiz");
     }
   };
 
@@ -92,7 +105,10 @@ const QuizManagement: React.FC = () => {
           <h1>Quiz Management</h1>
           <p>Create and manage quizzes for courses and modules</p>
         </div>
-        <button className="btn btn-primary" onClick={() => navigate('/admin/quizzes/new')}>
+        <button
+          className="btn btn-primary"
+          onClick={() => navigate("/admin/quizzes/new")}
+        >
           <FiPlus /> Create Quiz
         </button>
       </div>
@@ -104,22 +120,36 @@ const QuizManagement: React.FC = () => {
           <label>Filter by Type:</label>
           <div className="filter-buttons">
             <button
-              className={`filter-btn ${filterType === 'all' ? 'active' : ''}`}
-              onClick={() => setFilterType('all')}
+              className={`filter-btn ${filterType === "all" ? "active" : ""}`}
+              onClick={() => setFilterType("all")}
             >
               All Quizzes ({quizzes.length})
             </button>
             <button
-              className={`filter-btn ${filterType === 'module' ? 'active' : ''}`}
-              onClick={() => setFilterType('module')}
+              className={`filter-btn ${
+                filterType === "module" ? "active" : ""
+              }`}
+              onClick={() => setFilterType("module")}
             >
-              Module Quizzes ({quizzes.filter(q => q.course && q.moduleIndex !== undefined).length})
+              Module Quizzes (
+              {
+                quizzes.filter((q) => q.course && q.moduleIndex !== undefined)
+                  .length
+              }
+              )
             </button>
             <button
-              className={`filter-btn ${filterType === 'standalone' ? 'active' : ''}`}
-              onClick={() => setFilterType('standalone')}
+              className={`filter-btn ${
+                filterType === "standalone" ? "active" : ""
+              }`}
+              onClick={() => setFilterType("standalone")}
             >
-              Standalone ({quizzes.filter(q => !q.course || q.moduleIndex === undefined).length})
+              Standalone (
+              {
+                quizzes.filter((q) => !q.course || q.moduleIndex === undefined)
+                  .length
+              }
+              )
             </button>
           </div>
         </div>
@@ -131,7 +161,10 @@ const QuizManagement: React.FC = () => {
           <FiFileText size={48} />
           <h3>No Quizzes Found</h3>
           <p>Create your first quiz to get started</p>
-          <button className="btn btn-primary" onClick={() => navigate('/admin/quizzes/new')}>
+          <button
+            className="btn btn-primary"
+            onClick={() => navigate("/admin/quizzes/new")}
+          >
             <FiPlus /> Create Quiz
           </button>
         </div>
@@ -177,10 +210,11 @@ const QuizManagement: React.FC = () => {
                 {quiz.course && (
                   <p className="quiz-course">
                     <FiBook /> {quiz.course.title}
-                    {quiz.moduleIndex !== undefined && ` - Module ${quiz.moduleIndex + 1}`}
+                    {quiz.moduleIndex !== undefined &&
+                      ` - Module ${quiz.moduleIndex + 1}`}
                   </p>
                 )}
-                
+
                 <div className="quiz-stats">
                   <div className="stat">
                     <span className="stat-label">Questions:</span>
@@ -199,11 +233,17 @@ const QuizManagement: React.FC = () => {
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && quizToDelete && (
-        <div className="modal-overlay" onClick={() => setShowDeleteModal(false)}>
+        <div
+          className="modal-overlay"
+          onClick={() => setShowDeleteModal(false)}
+        >
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>Delete Quiz</h2>
-              <button className="modal-close" onClick={() => setShowDeleteModal(false)}>
+              <button
+                className="modal-close"
+                onClick={() => setShowDeleteModal(false)}
+              >
                 &times;
               </button>
             </div>
@@ -212,7 +252,10 @@ const QuizManagement: React.FC = () => {
               <p className="text-danger">This action cannot be undone.</p>
             </div>
             <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setShowDeleteModal(false)}>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowDeleteModal(false)}
+              >
                 Cancel
               </button>
               <button className="btn btn-danger" onClick={handleDelete}>
