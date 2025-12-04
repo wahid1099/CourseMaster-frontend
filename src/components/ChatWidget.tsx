@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
-import { io, Socket } from "socket.io-client";
 import { FiMessageSquare, FiSend, FiMinimize2 } from "react-icons/fi";
 import axios from "axios";
 import { RootState } from "../store/store";
@@ -18,42 +17,35 @@ interface Message {
 const ChatWidget: React.FC = () => {
   const { user } = useSelector((state: RootState) => state.auth);
   const [isOpen, setIsOpen] = useState(false);
-  const [socket, setSocket] = useState<Socket | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const [isConnected, setIsConnected] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [supportId, setSupportId] = useState<string>("");
+  const pollingIntervalRef = useRef<number | null>(null);
 
+  // Fetch support agent on mount
   useEffect(() => {
     if (user && user._id) {
-      const newSocket = io("https://course-master-backend-chi.vercel.app", {
-        withCredentials: true,
-      });
-
-      newSocket.on("connect", () => {
-        console.log("Connected to chat server");
-        setIsConnected(true);
-        newSocket.emit("join_chat", user._id);
-      });
-
-      newSocket.on("message_sent", (_message: Message) => {
-        // Update local message with server confirmation if needed
-      });
-
-      setSocket(newSocket);
       fetchSupportAgent();
-
-      return () => {
-        newSocket.disconnect();
-      };
     }
   }, [user]);
 
+  // Start/stop polling when chat opens/closes
   useEffect(() => {
     if (isOpen && supportId) {
       fetchChatHistory();
+
+      // Start polling for new messages every 3 seconds
+      pollingIntervalRef.current = setInterval(() => {
+        fetchChatHistory();
+      }, 3000);
     }
+
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
   }, [isOpen, supportId]);
 
   useEffect(() => {
@@ -89,28 +81,30 @@ const ChatWidget: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !socket || !supportId) return;
+    if (!newMessage.trim() || !supportId) return;
 
-    const messageData = {
-      sender: user?._id || "",
-      receiver: supportId,
-      message: newMessage,
-    };
+    try {
+      const response = await axios.post(
+        "/api/chat/send",
+        {
+          receiver: supportId,
+          message: newMessage,
+        },
+        {
+          withCredentials: true,
+        }
+      );
 
-    socket.emit("send_message", messageData);
-
-    setMessages((prev) => [
-      ...prev,
-      {
-        ...messageData,
-        createdAt: new Date().toISOString(),
-        isRead: false,
-      },
-    ]);
-
-    setNewMessage("");
+      if (response.data.success) {
+        // Add the new message to the local state immediately
+        setMessages((prev) => [...prev, response.data.chat]);
+        setNewMessage("");
+      }
+    } catch (error) {
+      console.error("Failed to send message", error);
+    }
   };
 
   if (!user || user.role === "admin") return null;
@@ -129,9 +123,7 @@ const ChatWidget: React.FC = () => {
           <div className="chat-header">
             <div className="chat-title">
               <h3>Live Support</h3>
-              <span
-                className={`status-dot ${isConnected ? "online" : "offline"}`}
-              ></span>
+              <span className="status-dot online"></span>
             </div>
             <button className="close-btn" onClick={() => setIsOpen(false)}>
               <FiMinimize2 />

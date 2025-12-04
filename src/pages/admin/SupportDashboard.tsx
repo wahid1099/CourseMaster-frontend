@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
-import { io, Socket } from "socket.io-client";
 import { FiSearch, FiSend, FiCheck, FiMessageSquare } from "react-icons/fi";
 import axios from "axios";
 import { RootState } from "../../store/store";
@@ -27,60 +26,50 @@ interface Message {
 
 const SupportDashboard: React.FC = () => {
   const { user } = useSelector((state: RootState) => state.auth);
-  const [socket, setSocket] = useState<Socket | null>(null);
   const [activeChats, setActiveChats] = useState<ChatUser[]>([]);
   const [selectedUser, setSelectedUser] = useState<ChatUser | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const pollingIntervalRef = useRef<number | null>(null);
+  const chatsPollingRef = useRef<number | null>(null);
 
+  // Fetch active chats periodically
   useEffect(() => {
     if (user) {
-      const newSocket = io("https://course-master-backend-chi.vercel.app", {
-        withCredentials: true,
-      });
-
-      newSocket.on("connect", () => {
-        console.log("Support agent connected");
-        newSocket.emit("join_chat", user._id);
-      });
-
-      newSocket.on("receive_message", (message: Message) => {
-        if (selectedUser && message.sender === selectedUser._id) {
-          setMessages((prev) => [...prev, message]);
-          markAsRead(message.sender);
-        }
-        fetchActiveChats();
-      });
-
-      newSocket.on("message_sent", (message: Message) => {
-        if (selectedUser && message.receiver === selectedUser._id) {
-          setMessages((prev) => {
-            const exists = prev.some(
-              (m) =>
-                m.message === message.message &&
-                Math.abs(
-                  new Date(m.createdAt).getTime() -
-                    new Date(message.createdAt).getTime()
-                ) < 1000
-            );
-            return exists ? prev : [...prev, message];
-          });
-        }
-        fetchActiveChats();
-      });
-
-      setSocket(newSocket);
       fetchActiveChats();
-    }
-  }, [user, selectedUser]);
 
+      // Poll for new chats every 5 seconds
+      chatsPollingRef.current = window.setInterval(() => {
+        fetchActiveChats();
+      }, 5000);
+    }
+
+    return () => {
+      if (chatsPollingRef.current) {
+        clearInterval(chatsPollingRef.current);
+      }
+    };
+  }, [user]);
+
+  // Fetch messages for selected user
   useEffect(() => {
     if (selectedUser) {
       fetchChatHistory(selectedUser._id);
       markAsRead(selectedUser._id);
+
+      // Poll for new messages every 2 seconds
+      pollingIntervalRef.current = window.setInterval(() => {
+        fetchChatHistory(selectedUser._id);
+      }, 2000);
     }
+
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
   }, [selectedUser]);
 
   useEffect(() => {
@@ -130,28 +119,30 @@ const SupportDashboard: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !socket || !selectedUser) return;
+    if (!newMessage.trim() || !selectedUser) return;
 
-    const messageData = {
-      sender: user?._id || "",
-      receiver: selectedUser._id,
-      message: newMessage,
-    };
+    try {
+      const response = await axios.post(
+        "/api/chat/send",
+        {
+          receiver: selectedUser._id,
+          message: newMessage,
+        },
+        {
+          withCredentials: true,
+        }
+      );
 
-    socket.emit("send_message", messageData);
-
-    setMessages((prev) => [
-      ...prev,
-      {
-        ...messageData,
-        createdAt: new Date().toISOString(),
-        isRead: false,
-      },
-    ]);
-
-    setNewMessage("");
+      if (response.data.success) {
+        setMessages((prev) => [...prev, response.data.chat]);
+        setNewMessage("");
+        fetchActiveChats(); // Refresh chat list
+      }
+    } catch (error) {
+      console.error("Failed to send message", error);
+    }
   };
 
   const filteredChats = activeChats.filter(
