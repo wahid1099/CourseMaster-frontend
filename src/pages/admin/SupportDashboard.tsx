@@ -32,25 +32,30 @@ const SupportDashboard: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<ChatUser | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (user) {
+      const newSocket = io("https://course-master-backend-chi.vercel.app", {
+        withCredentials: true,
+      });
+
+      newSocket.on("connect", () => {
+        console.log("Support agent connected");
         newSocket.emit("join_chat", user._id);
       });
 
       newSocket.on("receive_message", (message: Message) => {
-        // If message is from currently selected user, add to messages
         if (selectedUser && message.sender === selectedUser._id) {
           setMessages((prev) => [...prev, message]);
-          // Mark as read immediately
           markAsRead(message.sender);
         }
-
-        // Refresh active chats list to update last message/unread count
         fetchActiveChats();
       });
 
       newSocket.on("message_sent", (message: Message) => {
-        // If we sent a message to the selected user, add it
         if (selectedUser && message.receiver === selectedUser._id) {
-          // Check if not already added optimistically
           setMessages((prev) => {
             const exists = prev.some(
               (m) =>
@@ -68,10 +73,6 @@ const SupportDashboard: React.FC = () => {
 
       setSocket(newSocket);
       fetchActiveChats();
-
-      return () => {
-        newSocket.disconnect();
-      };
     }
   }, [user, selectedUser]);
 
@@ -115,7 +116,6 @@ const SupportDashboard: React.FC = () => {
         {},
         { withCredentials: true }
       );
-      // Update local state to clear unread count
       setActiveChats((prev) =>
         prev.map((chat) =>
           chat._id === userId ? { ...chat, unreadCount: 0 } : chat
@@ -142,7 +142,6 @@ const SupportDashboard: React.FC = () => {
 
     socket.emit("send_message", messageData);
 
-    // Optimistically add message
     setMessages((prev) => [
       ...prev,
       {

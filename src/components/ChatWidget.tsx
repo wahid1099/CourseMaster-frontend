@@ -20,17 +20,28 @@ const ChatWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [socket, setSocket] = useState<Socket | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-        }
+  const [newMessage, setNewMessage] = useState("");
+  const [isConnected, setIsConnected] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [supportId, setSupportId] = useState<string>("");
+
+  useEffect(() => {
+    if (user && user._id) {
+      const newSocket = io("https://course-master-backend-chi.vercel.app", {
+        withCredentials: true,
+      });
+
+      newSocket.on("connect", () => {
+        console.log("Connected to chat server");
+        setIsConnected(true);
+        newSocket.emit("join_chat", user._id);
       });
 
       newSocket.on("message_sent", (_message: Message) => {
         // Update local message with server confirmation if needed
-        // For now we just append it locally for instant feedback
       });
 
       setSocket(newSocket);
-
-      // Fetch support agent ID (admin)
       fetchSupportAgent();
 
       return () => {
@@ -51,12 +62,10 @@ const ChatWidget: React.FC = () => {
 
   const fetchSupportAgent = async () => {
     try {
-      // Fetch available support agents (admins/instructors)
       const response = await axios.get("/api/chat/support-agents", {
         withCredentials: true,
       });
       if (response.data.agents && response.data.agents.length > 0) {
-        // Use the first available agent
         setSupportId(response.data.agents[0]._id);
       }
     } catch (error) {
@@ -92,7 +101,6 @@ const ChatWidget: React.FC = () => {
 
     socket.emit("send_message", messageData);
 
-    // Optimistically add message
     setMessages((prev) => [
       ...prev,
       {
@@ -105,7 +113,7 @@ const ChatWidget: React.FC = () => {
     setNewMessage("");
   };
 
-  if (!user || user.role === "admin") return null; // Admins use the dashboard
+  if (!user || user.role === "admin") return null;
 
   return (
     <div className={`chat-widget ${isOpen ? "open" : ""}`}>
