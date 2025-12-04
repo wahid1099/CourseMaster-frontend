@@ -1,27 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { FiMail, FiLock, FiUser, FiKey } from 'react-icons/fi';
-import { register, clearError } from '../../store/slices/authSlice';
-import { RootState } from '../../store/store';
-import './Auth.css';
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { FiMail, FiLock, FiUser, FiKey } from "react-icons/fi";
+import { register, clearError } from "../../store/slices/authSlice";
+import { RootState } from "../../store/store";
+import "./Auth.css";
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { isLoading, error, isAuthenticated, user } = useSelector((state: RootState) => state.auth);
-  
+  const { isLoading, error, isAuthenticated, user } = useSelector(
+    (state: RootState) => state.auth
+  );
+
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    role: 'student',
-    adminKey: ''
+    name: "",
+    email: "",
+    password: "",
+    role: "student",
+    adminKey: "",
   });
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      navigate(user.role === 'admin' ? '/admin/dashboard' : '/student/dashboard');
+      navigate(
+        user.role === "admin" ? "/admin/dashboard" : "/student/dashboard"
+      );
     }
   }, [isAuthenticated, user, navigate]);
 
@@ -29,7 +33,9 @@ const Register: React.FC = () => {
     dispatch(clearError());
   }, [dispatch]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -38,14 +44,14 @@ const Register: React.FC = () => {
     const data: any = {
       name: formData.name,
       email: formData.email,
-      password: formData.password
+      password: formData.password,
+      role: formData.role,
     };
-    
-    if (formData.role === 'admin') {
-      data.role = 'admin';
+
+    if (formData.role === "admin") {
       data.adminKey = formData.adminKey;
     }
-    
+
     await dispatch(register(data) as any);
   };
 
@@ -53,14 +59,12 @@ const Register: React.FC = () => {
     <div className="auth-container">
       <div className="auth-card fade-in">
         <h2 className="text-center mb-4">Create Account</h2>
-        <p className="text-center text-secondary mb-6">Join CourseMaster and start learning today</p>
-        
-        {error && (
-          <div className="alert alert-error mb-4">
-            {error}
-          </div>
-        )}
-        
+        <p className="text-center text-secondary mb-6">
+          Join CourseMaster and start learning today
+        </p>
+
+        {error && <div className="alert alert-error mb-4">{error}</div>}
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label className="form-label">
@@ -76,7 +80,7 @@ const Register: React.FC = () => {
               required
             />
           </div>
-          
+
           <div className="form-group">
             <label className="form-label">
               <FiMail /> Email
@@ -91,7 +95,7 @@ const Register: React.FC = () => {
               required
             />
           </div>
-          
+
           <div className="form-group">
             <label className="form-label">
               <FiLock /> Password
@@ -107,7 +111,7 @@ const Register: React.FC = () => {
               minLength={6}
             />
           </div>
-          
+
           <div className="form-group">
             <label className="form-label">Role</label>
             <select
@@ -120,8 +124,8 @@ const Register: React.FC = () => {
               <option value="admin">Admin</option>
             </select>
           </div>
-          
-          {formData.role === 'admin' && (
+
+          {formData.role === "admin" && (
             <div className="form-group">
               <label className="form-label">
                 <FiKey /> Admin Key
@@ -135,17 +139,26 @@ const Register: React.FC = () => {
                 onChange={handleChange}
                 required
               />
-              <small className="text-tertiary">Contact administrator for the admin key</small>
+              <small className="text-tertiary">
+                Contact administrator for the admin key
+              </small>
             </div>
           )}
-          
-          <button type="submit" className="btn btn-primary w-full" disabled={isLoading}>
-            {isLoading ? 'Creating Account...' : 'Sign Up'}
+
+          <button
+            type="submit"
+            className="btn btn-primary w-full"
+            disabled={isLoading}
+          >
+            {isLoading ? "Creating Account..." : "Sign Up"}
           </button>
         </form>
-        
+
         <p className="text-center mt-4">
-          Already have an account? <Link to="/login" className="text-primary font-semibold">Login</Link>
+          Already have an account?{" "}
+          <Link to="/login" className="text-primary font-semibold">
+            Login
+          </Link>
         </p>
       </div>
     </div>
