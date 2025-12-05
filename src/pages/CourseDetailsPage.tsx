@@ -5,6 +5,7 @@ import { FiClock, FiUser, FiDollarSign, FiBookOpen } from "react-icons/fi";
 import { fetchCourse } from "../store/slices/courseSlice";
 import { RootState } from "../store/store";
 import axios from "../config/axios.config";
+import { toast } from "react-toastify";
 import "./Dashboard-dark.css";
 
 const API_URL = "https://course-master-backend-chi.vercel.app/api";
@@ -26,6 +27,7 @@ const CourseDetailsPage: React.FC = () => {
 
   const handleEnroll = async () => {
     if (!isAuthenticated) {
+      toast.error("Please login to enroll in this course");
       navigate("/login");
       return;
     }
@@ -36,10 +38,17 @@ const CourseDetailsPage: React.FC = () => {
         {},
         { withCredentials: true }
       );
-      alert("Successfully enrolled! Check your dashboard.");
-      navigate("/student/dashboard");
+
+      toast.success("Successfully enrolled in the course!");
+
+      // Redirect to dashboard after a short delay
+      setTimeout(() => {
+        navigate("/student/dashboard");
+      }, 1500);
     } catch (error: any) {
-      alert(error.response?.data?.message || "Enrollment failed");
+      console.error("Enrollment error:", error);
+      const errorMessage = error.response?.data?.message || "Enrollment failed";
+      toast.error(errorMessage);
     }
   };
 
