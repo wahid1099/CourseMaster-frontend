@@ -7,6 +7,7 @@ import { RootState } from "../store/store";
 import axios from "../config/axios.config";
 import { toast } from "react-toastify";
 import "./Dashboard-dark.css";
+import "./CourseDetails.css";
 
 const API_URL = "https://course-master-backend-chi.vercel.app/api";
 
@@ -67,27 +68,38 @@ const CourseDetailsPage: React.FC = () => {
 
   return (
     <div className="course-details-page">
-      <div className="course-header">
+      {/* Hero Section with Large Image */}
+      <div className="course-hero">
+        <div className="course-hero-image">
+          <img src={currentCourse.thumbnail} alt={currentCourse.title} />
+          <div className="course-hero-overlay"></div>
+        </div>
         <div className="container">
-          <div className="course-header-content">
-            <div>
-              <span className="badge badge-primary">
-                {currentCourse.category}
-              </span>
-              <h1 className="mt-2">{currentCourse.title}</h1>
-              <p className="course-instructor">
-                <FiUser /> By {currentCourse.instructor}
-              </p>
-            </div>
-            <div className="course-header-actions">
-              <div className="course-price-box">
-                <span className="price-label">Price</span>
-                <span className="price">${currentCourse.price}</span>
+          <div className="course-hero-content">
+            <span className="badge badge-primary badge-lg">
+              {currentCourse.category}
+            </span>
+            <h1 className="course-hero-title">{currentCourse.title}</h1>
+            <p className="course-hero-instructor">
+              <FiUser /> By {currentCourse.instructor}
+            </p>
+            <div className="course-hero-stats">
+              <div className="stat-item">
+                <FiBookOpen />
+                <span>{currentCourse.modules?.length || 0} Modules</span>
               </div>
-              <button onClick={handleEnroll} className="btn btn-primary btn-lg">
-                Enroll Now
-              </button>
+              <div className="stat-item">
+                <FiClock />
+                <span>{totalLessons} Lessons</span>
+              </div>
+              <div className="stat-item">
+                <FiDollarSign />
+                <span className="price-highlight">${currentCourse.price}</span>
+              </div>
             </div>
+            <button onClick={handleEnroll} className="btn btn-primary btn-hero">
+              Enroll Now
+            </button>
           </div>
         </div>
       </div>
@@ -97,29 +109,37 @@ const CourseDetailsPage: React.FC = () => {
           <div className="course-main">
             <section className="card mb-6">
               <h2>About This Course</h2>
-              <p>{currentCourse.description}</p>
+              <p className="course-about-text">{currentCourse.description}</p>
             </section>
 
             <section className="card">
               <h2>Course Content</h2>
-              <div className="course-stats mb-4">
-                <span>
-                  <FiBookOpen /> {currentCourse.modules?.length || 0} Modules
-                </span>
-                <span>
-                  <FiClock /> {totalLessons} Lessons
-                </span>
+              <div className="course-stats-bar mb-4">
+                <div className="stat-badge">
+                  <FiBookOpen />
+                  <span>{currentCourse.modules?.length || 0} Modules</span>
+                </div>
+                <div className="stat-badge">
+                  <FiClock />
+                  <span>{totalLessons} Lessons</span>
+                </div>
               </div>
 
               {currentCourse.modules?.map((module, idx) => (
-                <div key={idx} className="module-item">
-                  <h4>{module.title}</h4>
-                  <p>{module.description}</p>
-                  <ul className="lesson-list">
+                <div key={idx} className="module-item-modern">
+                  <div className="module-header">
+                    <h4>{module.title}</h4>
+                    <span className="module-number">Module {idx + 1}</span>
+                  </div>
+                  <p className="module-description">{module.description}</p>
+                  <ul className="lesson-list-modern">
                     {module.lessons.map((lesson: any, lessonIdx: number) => (
                       <li key={lessonIdx}>
-                        <FiClock size={14} /> {lesson.title} ({lesson.duration}{" "}
-                        min)
+                        <FiClock size={16} />
+                        <span>{lesson.title}</span>
+                        <span className="lesson-duration">
+                          {lesson.duration} min
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -129,7 +149,7 @@ const CourseDetailsPage: React.FC = () => {
           </div>
 
           <div className="course-sidebar">
-            <div className="card">
+            <div className="card sticky-sidebar">
               <h3>Course Info</h3>
               <div className="info-item">
                 <FiUser />
@@ -142,7 +162,7 @@ const CourseDetailsPage: React.FC = () => {
                 <FiDollarSign />
                 <div>
                   <strong>Price</strong>
-                  <p>${currentCourse.price}</p>
+                  <p className="price-text">${currentCourse.price}</p>
                 </div>
               </div>
               <div className="info-item">
@@ -152,6 +172,12 @@ const CourseDetailsPage: React.FC = () => {
                   <p>{currentCourse.batch.name}</p>
                 </div>
               </div>
+              <button
+                onClick={handleEnroll}
+                className="btn btn-primary w-full mt-4"
+              >
+                Enroll Now
+              </button>
             </div>
           </div>
         </div>
