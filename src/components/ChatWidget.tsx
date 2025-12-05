@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { FiMessageSquare, FiSend, FiMinimize2 } from "react-icons/fi";
-import axios from "axios";
+import axios from "../config/axios.config";
 import { RootState } from "../store/store";
 import "./ChatWidget.css";
 

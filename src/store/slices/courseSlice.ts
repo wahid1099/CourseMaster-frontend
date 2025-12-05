@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import axios from "axios";
+import axios from "../../config/axios.config";
 
 const API_URL = "https://course-master-backend-chi.vercel.app/api";
 

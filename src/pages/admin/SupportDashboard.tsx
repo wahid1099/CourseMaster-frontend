@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { FiSearch, FiSend, FiCheck, FiMessageSquare } from "react-icons/fi";
-import axios from "axios";
+import axios from "../../config/axios.config";
 import { RootState } from "../../store/store";
 import "./SupportDashboard.css";
 

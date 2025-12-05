@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { FiClock, FiUser, FiDollarSign, FiBookOpen } from "react-icons/fi";
 import { fetchCourse } from "../store/slices/courseSlice";
 import { RootState } from "../store/store";
-import axios from "axios";
+import axios from "../config/axios.config";
 import "./Dashboard-dark.css";
 
 const API_URL = "https://course-master-backend-chi.vercel.app/api";

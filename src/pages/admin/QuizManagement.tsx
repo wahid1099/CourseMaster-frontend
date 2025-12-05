@@ -8,7 +8,7 @@ import {
   FiFileText,
   FiFilter,
 } from "react-icons/fi";
-import axios from "axios";
+import axios from "../../config/axios.config";
 import "./QuizManagement.css";
 
 const API_URL = "https://course-master-backend-chi.vercel.app/api";

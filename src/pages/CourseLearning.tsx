@@ -9,7 +9,7 @@ import {
   FiClock,
   FiBook,
 } from "react-icons/fi";
-import axios from "axios";
+import axios from "../config/axios.config";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./CourseLearning.css";

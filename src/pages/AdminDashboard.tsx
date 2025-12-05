@@ -9,7 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import axios from "axios";
+import axios from "../config/axios.config";
 import "./Dashboard-dark.css";
 
 const API_URL = "https://course-master-backend-chi.vercel.app/api";

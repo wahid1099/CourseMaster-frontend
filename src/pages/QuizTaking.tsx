@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FiClock, FiCheckCircle, FiXCircle, FiArrowLeft } from "react-icons/fi";
-import axios from "axios";
+import axios from "../config/axios.config";
 import { toast } from "react-toastify";
 import "./QuizTaking.css";
 

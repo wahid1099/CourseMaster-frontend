@@ -15,7 +15,7 @@ import {
   FiEye,
   FiPlus,
 } from "react-icons/fi";
-import axios from "axios";
+import axios from "../../config/axios.config";
 import "./Assignments.css";
 
 const API_URL = "/api";

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FiPlus, FiTrash2, FiSave, FiX, FiArrowLeft } from "react-icons/fi";
-import axios from "axios";
+import axios from "../../config/axios.config";
 import { toast } from "react-toastify";
 import "./QuizForm.css";
 
