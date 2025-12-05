@@ -18,5 +18,12 @@
     "types": ["vitest/globals", "@testing-library/jest-dom"]
   },
   "include": ["src"],
+  "exclude": [
+    "src/tests",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
